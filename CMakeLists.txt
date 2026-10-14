@@ -38,4 +38,4 @@ if(STANDALONE_BUILD AND DEBUG)
 endif()
 
 add_subdirectory(src/external)
-add_subdirectory(src/api)
+add_subdirectory(src/vocoder)
