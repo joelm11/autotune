@@ -1,7 +1,6 @@
 #ifndef VOCODER_WINDOW_H
 #define VOCODER_WINDOW_H
 
-#include <array>
 #include <cmath>
 #include <cstddef>
 #include <numbers>
