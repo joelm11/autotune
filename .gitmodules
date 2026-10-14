@@ -1,0 +1,6 @@
+[submodule "src/external/kissfft"]
+	path = src/external/kissfft
+	url = https://github.com/mborgerding/kissfft.git
+[submodule "src/external/AudioFile"]
+	path = src/external/AudioFile
+	url = https://github.com/adamstark/AudioFile.git
