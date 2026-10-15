@@ -7,9 +7,9 @@
 template <typename T>
 class OLABuffer {
  public:
-  using Size = std::size_t;
+  using SizeType = std::size_t;
 
-  OLABuffer(const Size frame_size, const Size hop_size)
+  OLABuffer(const SizeType frame_size, const SizeType hop_size)
       : kFrameSize_(frame_size),
         kBufferSize_(kFrameSize_ + hop_size),
         hop_size_(hop_size),
@@ -22,7 +22,7 @@ class OLABuffer {
     }
 
     // Overlap add the samples to the ring buffer.
-    for (Size i = 0; i < kFrameSize_; ++i) {
+    for (SizeType i = 0; i < kFrameSize_; ++i) {
       buffer_[(l_ + i) % kBufferSize_] += samples[i];
     }
 
@@ -40,12 +40,12 @@ class OLABuffer {
     return output;
   }
 
-  void SetHopSize(const Size hop_size) { hop_size_ = hop_size; }
+  void SetHopSize(const SizeType hop_size) { hop_size_ = hop_size; }
 
  private:
-  const Size kFrameSize_, kBufferSize_;
+  const SizeType kFrameSize_, kBufferSize_;
 
-  Size hop_size_, l_;
+  SizeType hop_size_, l_;
   std::vector<T> buffer_;
 };
-#endif
+#endif  // OLA_BUFFER_H
