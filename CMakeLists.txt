@@ -39,3 +39,5 @@ endif()
 
 add_subdirectory(src/external)
 add_subdirectory(src/vocoder)
+add_subdirectory(src/resampler)
+add_subdirectory(src/pitch-shift)

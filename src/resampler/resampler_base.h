@@ -6,8 +6,7 @@ class ResamplerBase {
  public:
   virtual ~ResamplerBase() = default;
 
-  virtual std::vector<std::vector<float>> Resample(
-      const std::vector<std::vector<float>>& input) = 0;
+  virtual std::vector<float> Resample(const std::vector<float>& input) = 0;
 };
 
 #endif

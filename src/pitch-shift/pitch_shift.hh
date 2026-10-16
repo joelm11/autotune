@@ -1,6 +1,6 @@
 #ifndef PITCH_SHIFT_H
 #define PITCH_SHIFT_H
-#include "../external/speex_resampler/speex_resampler.h"
+#include "../resampler/resampler.h"
 #include "../vocoder/vocoder.hh"
 class PitchShifter {
  public:
@@ -14,6 +14,6 @@ class PitchShifter {
 
  private:
   Vocoder vocoder;
-  //   Resampler resampler;
+  Resampler resampler;
 };
 #endif  // PITCH_SHIFT_H
