@@ -21,36 +21,18 @@ class Vocoder {
 
   Vocoder(SizeType num_channels, SizeType num_samples, SizeType sample_rate);
 
-  /**
-   * @brief Given a frame of audio samples, process the frame using the vocoder.
-   * As the vocoder uses overlap-add to reconstruct the signal,
-   * GetAnalysisHopSize() samples will be available as output from each
-   * iteration.
-   * TODO: Add the ability to shift out the remaining processed samples when
-   * the input is finished.
-   * @param src
-   * @param scale_factor
-   * @return std::vector<std::vector<float>>
-   */
+  // Process the given frame applying effect.
+  // As the vocoder uses overlap-add to reconstruct the signal,
+  // GetAnalysisHopSize() samples will be available as output from each
+  // iteration
+  // TODO: Shift out remaining samples
   std::vector<std::vector<float>> Process(
       const std::vector<std::vector<float>>& src, const Effect effect,
       const float scale_factor = 1.f);
 
-  /**
-   * @brief Returns the number of samples that will be available as output from
-   * the vocoder. The number of samples returned from the vocoder is
-   * proportional to the scale factor, which determines the synthesis hop size.
-   *
-   * @return SizeType
-   */
+  // Number of samples returned by each Process() call
   SizeType GetSynthesisHopSize() const { return synthesis_hop_size_; }
-
-  /**
-   * @brief Returns the number of samples expected between consecutive input
-   * frames.
-   *
-   * @return SizeType
-   */
+  //  Returns the number of samples expected between consecutive input frames
   SizeType GetAnalysisHopSize() const { return kAnalysisHopSize; }
 
  private:
