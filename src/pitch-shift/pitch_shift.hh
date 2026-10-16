@@ -1,7 +1,9 @@
 #ifndef PITCH_SHIFT_H
 #define PITCH_SHIFT_H
+
 #include "../resampler/resampler.h"
 #include "../vocoder/vocoder.hh"
+
 class PitchShifter {
  public:
   using SizeType = std::size_t;
@@ -13,6 +15,8 @@ class PitchShifter {
   FBuffer Process(const FBuffer& src);
 
  private:
+  const int resample_in_;
+  const float scale_factor_;
   Vocoder vocoder;
   Resampler resampler;
 };
