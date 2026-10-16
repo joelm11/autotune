@@ -12,6 +12,8 @@ VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
       kSynthesisHopSize_(kAnalysisHopSize * scale_factor),
       kWindowBuffer_(ComputeHannWin<float>(kFrameSz_, kAnalysisHopSize)),
       input_acc_(frame_sz),
+      prev_frame_phase_(kFrameSz_, 0.0f),
+      prev_frame_synth_phase_(kFrameSz_, 0.0f),
       output_acc_(frame_sz, kSynthesisHopSize_) {
   fft_ = std::make_unique<FFTImpl>(frame_sz);
 }
@@ -23,28 +25,29 @@ VocoderImpl::FBuffer VocoderImpl::Process(const VocoderImpl::FBuffer& src) {
     return {};
   }
 
-  FBuffer output_frame;
-  std::vector<FBuffer> src_frames = std::vector<FBuffer>(kAnalysisHops);
-  std::vector<CFBuffer> analysis_frames = std::vector<CFBuffer>(kAnalysisHops);
-  std::vector<FBuffer> prev_phase_frames,
-      prev_synth_phase_frames = std::vector<FBuffer>(kAnalysisHops);
+  // Get source frames
+  std::vector<FBuffer> src_frames;
+  while (input_acc_.Full()) {
+    src_frames.push_back(input_acc_.Read(kAnalysisHopSize));
+  }
 
-  prev_phase_frames[0] = prev_frame_phase_;
-  prev_synth_phase_frames[0] = prev_frame_synth_phase_;
-  for (int i = 0; i < kAnalysisHops; ++i) {
+  FBuffer output_frame;
+  FBuffer prev_frame_phase = prev_frame_phase_;
+  FBuffer prev_frame_synth_phase = prev_frame_synth_phase_;
+  for (auto& src_frame : src_frames) {
+    CFBuffer analysis_frame(kFrameSz_);
     FBuffer procd_samples(kSynthesisHopSize_);
 
-    Analysis(src_frames[i], analysis_frames[i]);
-    ModifyPhaseT(analysis_frames[i], prev_phase_frames[i],
-                 prev_synth_phase_frames[i]);
-    procd_samples = Synthesis(analysis_frames[i], output_acc_);
+    Analysis(src_frame, analysis_frame);
+    ModifyPhaseT(analysis_frame, prev_frame_phase, prev_frame_synth_phase);
+    procd_samples = Synthesis(analysis_frame, output_acc_);
 
     output_frame.insert(output_frame.end(), procd_samples.begin(),
                         procd_samples.end());
   }
 
-  prev_frame_phase_ = prev_phase_frames.back();
-  prev_frame_synth_phase_ = prev_synth_phase_frames.back();
+  prev_frame_phase_ = prev_frame_phase;
+  prev_frame_synth_phase_ = prev_frame_synth_phase;
 
   return output_frame;
 }

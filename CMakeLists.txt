@@ -15,7 +15,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     # Only set build type if this is the main project
     if(STANDALONE_BUILD AND DEBUG)
         message(STATUS "Debug build enabled")
-        set(CMAKE_BUILD_TYPE RelWithDebInfo)
+        set(CMAKE_BUILD_TYPE Debug)
     else()
         set(CMAKE_BUILD_TYPE Release)
     endif()

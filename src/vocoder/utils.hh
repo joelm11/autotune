@@ -17,7 +17,7 @@ class RingBuffer {
   void Write(const vector<T>& samples) {
     for (int sample = 0; sample < samples.size(); ++sample) {
       buffer[w_idx] = samples[sample];
-      w_idx = (w_idx + sample) % N;
+      w_idx = (w_idx + 1) % N;
     }
   }
 
@@ -28,13 +28,17 @@ class RingBuffer {
     for (int sample = 0; sample < frame_size; ++sample) {
       out[sample] = buffer[(r_idx + sample) % N];
     }
-    r_idx += hop_size;
+    r_idx = (r_idx + hop_size) % N;
 
     return out;
   }
 
-  // The buffer is full so long as there is > 1 frame between r and w
-  bool Full() const { return (r_idx + frame_size) % N == w_idx; }
+  // True once at least 2 full frames have accumulated, and stays true while
+  // reading another frame would not run up to the write pointer.
+  bool Full() const {
+    const int remaining = (w_idx - r_idx + N) % N;
+    return remaining > frame_size;
+  }
 
  private:
   int frame_size, N;

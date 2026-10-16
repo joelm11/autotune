@@ -24,8 +24,7 @@ class TestOutputFile {
   AudioFile<float> out_file;
 };
 
-static std::vector<float> GenSine(const int sr, const float f,
-                                  const int num_samples) {
+std::vector<float> GenSine(const int sr, const float f, const int num_samples) {
   std::vector<float> out(num_samples);
   for (int i = 0; i < num_samples; ++i) {
     out[i] = std::sin(2 * std::numbers::pi * i * f / sr);
@@ -52,11 +51,12 @@ TEST_F(VocoderTest, UniformSine) {
   std::vector<float> output_buff;
   for (int samples_procd = 0; samples_procd < sine.size();
        samples_procd += kFrameSize) {
+    const int chunk_sz =
+        std::min(kFrameSize, static_cast<int>(sine.size()) - samples_procd);
     auto out = voc.Process(
         std::vector<float>(sine.begin() + samples_procd,
-                           sine.begin() + samples_procd + kFrameSize));
-    output_buff.insert(output_buff.begin() + samples_procd, out.begin(),
-                       out.end());
+                           sine.begin() + samples_procd + chunk_sz));
+    output_buff.insert(output_buff.end(), out.begin(), out.end());
   }
 
   // Writeout file and validate fs write
