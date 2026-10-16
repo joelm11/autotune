@@ -2,7 +2,6 @@
 #define API_FFT_FFT_BASE_H
 
 #include <complex>
-#include <cstddef>
 #include <vector>
 
 template <typename T>

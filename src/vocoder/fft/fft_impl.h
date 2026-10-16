@@ -1,3 +1,5 @@
+#ifndef FFT_SPEEX_FFT_H
+#define FFT_SPEEX_FFT_H
 #include <complex>
 #include <cstddef>
 #include <vector>
@@ -49,3 +51,4 @@ class FFTImpl : public FFTBase<float> {
   std::vector<kiss_fft_cpx> input_buffer_;
   std::vector<kiss_fft_cpx> output_buffer_;
 };
+#endif  //  FFT_SPEEX_FFT_H

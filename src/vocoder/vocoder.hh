@@ -3,26 +3,18 @@
 
 #include <vector>
 
-#include "fft/fft_impl.h"
-
 class VocoderImpl;
 
 class Vocoder {
  public:
   using SizeType = std::size_t;
-  using FBuffer = std::vector<std::vector<float>>;
-  using CFBuffer = std::vector<std::vector<std::complex<float>>>;
+  using FBuffer = std::vector<float>;
 
-  enum Effect {
-    kNone = 0,
-    kRobotize = 1,
-    kTimeStretch = 2,
-  };
+  Vocoder(const SizeType frame_size, const SizeType sample_rate,
+          const SizeType scale_factor);
+  ~Vocoder();
 
-  Vocoder(const SizeType num_channels, const SizeType sample_rate);
-
-  // Applies input frame
-  FBuffer Process(const FBuffer& src, const Effect effect);
+  FBuffer Process(const FBuffer& src);
 
  private:
   std::unique_ptr<VocoderImpl> impl_;

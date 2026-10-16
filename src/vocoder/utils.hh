@@ -15,7 +15,7 @@ class RingBuffer {
   }
 
   void Write(const vector<T>& samples) {
-    for (int sample = 0; sample < samples[0].size(); ++sample) {
+    for (int sample = 0; sample < samples.size(); ++sample) {
       buffer[w_idx] = samples[sample];
       w_idx = (w_idx + sample) % N;
     }
@@ -38,7 +38,7 @@ class RingBuffer {
 
  private:
   int frame_size, N;
-  vector<vector<T>> buffer;
+  vector<T> buffer;
   int w_idx = 0, r_idx = 0;
 };
 
