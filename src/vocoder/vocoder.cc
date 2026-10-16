@@ -5,7 +5,7 @@
 #include "vocoder_impl.hh"
 
 Vocoder::Vocoder(const SizeType frame_size, const SizeType sample_rate,
-                 const SizeType scale_factor)
+                 const float scale_factor)
     : impl_(std::make_unique<VocoderImpl>(frame_size, sample_rate,
                                           scale_factor)) {}
 

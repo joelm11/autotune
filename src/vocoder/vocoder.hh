@@ -11,7 +11,7 @@ class Vocoder {
   using FBuffer = std::vector<float>;
 
   Vocoder(const SizeType frame_size, const SizeType sample_rate,
-          const SizeType scale_factor);
+          const float scale_factor);
   ~Vocoder();
 
   FBuffer Process(const FBuffer& src);

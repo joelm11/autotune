@@ -53,9 +53,8 @@ TEST_F(VocoderTest, UniformSine) {
        samples_procd += kFrameSize) {
     const int chunk_sz =
         std::min(kFrameSize, static_cast<int>(sine.size()) - samples_procd);
-    auto out = voc.Process(
-        std::vector<float>(sine.begin() + samples_procd,
-                           sine.begin() + samples_procd + chunk_sz));
+    auto out = voc.Process(std::vector<float>(
+        sine.begin() + samples_procd, sine.begin() + samples_procd + chunk_sz));
     output_buff.insert(output_buff.end(), out.begin(), out.end());
   }
 
@@ -63,6 +62,72 @@ TEST_F(VocoderTest, UniformSine) {
   fout.Write(output_buff);
 }
 
-// Stretch speech with the vocoder
+// Stretch speech with the vocoder.
+TEST_F(VocoderTest, StretchSpeech) {
+  AudioFile<float> input_file;
+  ASSERT_TRUE(input_file.load(AUDIO_FILE_PATH));
 
-// Compress speech with the vocoder
+  // The dialogue clip is stereo, so take its first channel as the mono source.
+  const std::vector<float>& speech = input_file.samples[0];
+  const int output_rate = static_cast<int>(input_file.getSampleRate());
+  const float kScaleFactor = 2.f;
+
+  TestOutputFile fout("vocoded_audio_s.wav", output_rate);
+
+  Vocoder voc(kFrameSize, output_rate, kScaleFactor);
+
+  std::vector<float> output_buff;
+  for (int samples_procd = 0; samples_procd < speech.size();
+       samples_procd += kFrameSize) {
+    const int chunk_sz =
+        std::min(kFrameSize, static_cast<int>(speech.size()) - samples_procd);
+    auto out = voc.Process(
+        std::vector<float>(speech.begin() + samples_procd,
+                           speech.begin() + samples_procd + chunk_sz));
+    output_buff.insert(output_buff.end(), out.begin(), out.end());
+  }
+
+  // Stretching should produce more samples than it consumed.
+  EXPECT_GT(output_buff.size(), speech.size());
+  // Output duration should be roughly scale_factor x the input duration.
+  EXPECT_NEAR(static_cast<double>(output_buff.size()) / speech.size(),
+              kScaleFactor, 0.1);
+
+  // Write out file and validate fs write
+  fout.Write(output_buff);
+}
+
+// Compress speech with the vocoder.
+TEST_F(VocoderTest, CompressSpeech) {
+  AudioFile<float> input_file;
+  ASSERT_TRUE(input_file.load(AUDIO_FILE_PATH));
+
+  // The dialogue clip is stereo, so take its first channel as the mono source.
+  const std::vector<float>& speech = input_file.samples[0];
+  const int output_rate = static_cast<int>(input_file.getSampleRate());
+  const float kScaleFactor = 0.5f;
+
+  TestOutputFile fout("vocoded_audio_c.wav", output_rate);
+
+  Vocoder voc(kFrameSize, output_rate, kScaleFactor);
+
+  std::vector<float> output_buff;
+  for (int samples_procd = 0; samples_procd < speech.size();
+       samples_procd += kFrameSize) {
+    const int chunk_sz =
+        std::min(kFrameSize, static_cast<int>(speech.size()) - samples_procd);
+    auto out = voc.Process(
+        std::vector<float>(speech.begin() + samples_procd,
+                           speech.begin() + samples_procd + chunk_sz));
+    output_buff.insert(output_buff.end(), out.begin(), out.end());
+  }
+
+  // Compressing should produce fewer samples than it consumed.
+  EXPECT_LT(output_buff.size(), speech.size());
+  // Output duration should be roughly scale_factor x the input duration.
+  EXPECT_NEAR(static_cast<double>(output_buff.size()) / speech.size(),
+              kScaleFactor, 0.1);
+
+  // Write out file and validate fs write
+  fout.Write(output_buff);
+}
