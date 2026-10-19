@@ -31,7 +31,8 @@ class VocoderImpl {
   const SizeType kAnalysisHops = 4;
   const SizeType kFrameSz_, kSampleRate_;
   const SizeType kAnalysisHopSize, kSynthesisHopSize_;
-  const std::vector<float> kWindowBuffer_;
+  const std::vector<float> kAnalysisWindow_;
+  const std::vector<float> kSynthesisWindow_;
 
   RingBuffer<float> input_acc_;
   FBuffer prev_frame_phase_, prev_frame_synth_phase_;

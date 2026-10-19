@@ -10,7 +10,9 @@ VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
       kSampleRate_(sample_rate),
       kAnalysisHopSize(frame_sz / kAnalysisHops),
       kSynthesisHopSize_(kAnalysisHopSize * scale_factor),
-      kWindowBuffer_(ComputeHannWin<float>(kFrameSz_, kAnalysisHopSize)),
+      kAnalysisWindow_(ComputeHannWin<float>(kFrameSz_, kAnalysisHopSize)),
+      kSynthesisWindow_(
+          ComputeHannWin<float>(kFrameSz_, kSynthesisHopSize_)),
       input_acc_(frame_sz),
       prev_frame_phase_(kFrameSz_, 0.0f),
       prev_frame_synth_phase_(kFrameSz_, 0.0f),
@@ -56,7 +58,7 @@ void VocoderImpl::Analysis(VocoderImpl::FBuffer& src,
                            VocoderImpl::CFBuffer& out) {
   // Apply window function.
   for (int i = 0; i < kFrameSz_; ++i) {
-    src[i] *= kWindowBuffer_[i];
+    src[i] *= kAnalysisWindow_[i];
   }
   // Convert FFT result to magnitude and phase format.
   fft_->Forward(src, out);
@@ -108,7 +110,7 @@ VocoderImpl::FBuffer VocoderImpl::Synthesis(VocoderImpl::CFBuffer& src,
   fft_->Inverse(src, output_buffer_);
   // Apply window function.
   for (int j = 0; j < kNumSamples_; ++j) {
-    output_buffer_[j] *= kWindowBuffer_[j] / kNumSamples_;
+    output_buffer_[j] *= kSynthesisWindow_[j] / kNumSamples_;
   }
   // Overlap-add.
   return out.OverlapAdd(output_buffer_);

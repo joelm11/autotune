@@ -1,7 +1,9 @@
 #include "../vocoder.hh"
+#include "../window.h"
 
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <numbers>
 
 #include "AudioFile.h"
@@ -60,6 +62,36 @@ TEST_F(VocoderTest, UniformSine) {
 
   // Writeout file and validate fs write
   fout.Write(output_buff);
+}
+
+// The vocoder applies its window once during analysis and once during
+// synthesis, so each frame is effectively weighted by window^2. Verify that
+// ComputeHannWin normalizes the window for its hop so the overlap-add of
+// window^2 is exactly 1 for every sample (i.e. the window is COLA-correct and
+// the output has a flat envelope with unity gain).
+TEST_F(VocoderTest, WindowCola) {
+  const std::vector<std::size_t> hops = {128, 256, 512};
+  for (const std::size_t hop : hops) {
+    const auto window = ComputeHannWin<float>(kFrameSize, hop);
+
+    // Check the overlap-add sum at every sample in the steady-state middle of
+    // a long frame stream.
+    double max_dev = 0.0;
+    for (int n = 4 * kFrameSize; n < 8 * kFrameSize; ++n) {
+      double sum = 0.0;
+      for (long m = -static_cast<long>(kFrameSize / hop) - 1;
+           m <= n / static_cast<long>(hop); ++m) {
+        const long idx = n - m * static_cast<long>(hop);
+        if (idx < 0 || idx >= kFrameSize) {
+          continue;
+        }
+        const double v = window[idx];
+        sum += v * v;
+      }
+      max_dev = std::max(max_dev, std::fabs(sum - 1.0));
+    }
+    EXPECT_NEAR(max_dev, 0.0, 1e-6) << "hop = " << hop;
+  }
 }
 
 // Stretch speech with the vocoder.
