@@ -1,5 +1,6 @@
-add_library(pitch-detect STATIC pitch_detect.hh pitch_detect.cc)
-target_include_directories(pitch-detect PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(pitch-detect INTERFACE)
+target_include_directories(pitch-detect INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(pitch-detect INTERFACE vocoder)
 
 
 if(STANDALONE_BUILD AND DEBUG)

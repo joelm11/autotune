@@ -1,5 +1,6 @@
 #ifndef YIN_H
 #define YIN_H
+#include <memory>
 #include <numeric>
 
 #include "../vocoder/fft/fft_impl.h"
@@ -22,7 +23,7 @@ class Yin : public PitchDetect {
     }
 
     // Autocorrelation
-    fft_.Forward(src, fcorrs_lagged);
+    fft_->Forward(src, fcorrs_lagged);
     for (int i = 0; i < N; ++i) {
       fcorrs_lagged[i].real(std::abs(fcorrs_lagged[i]) / N);
     }
@@ -43,12 +44,23 @@ class Yin : public PitchDetect {
       diff[i] = (diff[i] - kMean) / kStd;
     }
 
-    // Find minima below some threshold
+    // Find minimum below some threshold
+    const unsigned kFs = 16e3;
+    const unsigned max_freq_ind = kFs / 3500 + 1;
+    const float kThresh = 1.f;
+    for (int lag = max_freq_ind; lag < N; ++lag) {
+      if (diff[lag] < kThresh) {
+        while (diff[lag] > diff[lag + 1]) {
+          ++lag;
+        }
+        return PitchType(kFs / (lag + 1));
+      }
+    }
 
-    return {};
+    return PitchType(-1);
   }
 
  private:
-  FFTImpl fft_;
+  std::unique_ptr<FFTImpl> fft_;
 };
 #endif  // YIN_H
