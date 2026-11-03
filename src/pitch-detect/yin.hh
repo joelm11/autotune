@@ -1,66 +1,73 @@
 #ifndef YIN_H
 #define YIN_H
-#include <memory>
-#include <numeric>
+#include <cmath>
 
-#include "../vocoder/fft/fft_impl.h"
 #include "pitch_detect.hh"
 
 class Yin : public PitchDetect {
  public:
-  Yin(const SizeType frame_sz) : fft_(std::make_unique<FFTImpl>(frame_sz)) {}
+  Yin(const SizeType /*frame_sz*/) {}
 
   PitchDetect::PitchType Process(const FBuffer& src) override {
     const SizeType N = src.size();
-    FBuffer corrs(N), diff(N);
-    CFBuffer fcorrs_lagged(N);
+    if (N < 2) {
+      return PitchType{0};
+    }
+    const unsigned kFs = 16000;
 
-    // Cumulative sum of squares
-    float sum = 0;
-    for (int i = 0; i < N; ++i) {
-      corrs[i] = src[i] * src[i] + sum;
-      sum = corrs[i];
+    // Difference function: d(lag) = sum_j (src[j] - src[j+lag])^2
+    FBuffer diff(N, 0.f);
+    for (SizeType lag = 0; lag < N; ++lag) {
+      float sum = 0.f;
+      for (SizeType j = 0; j + lag < N; ++j) {
+        const float d = src[j] - src[j + lag];
+        sum += d * d;
+      }
+      diff[lag] = sum;
     }
 
-    // Autocorrelation
-    fft_->Forward(src, fcorrs_lagged);
-    for (int i = 0; i < N; ++i) {
-      fcorrs_lagged[i].real(std::abs(fcorrs_lagged[i]) / N);
+    // Cumulative mean normalized difference (CMND).
+    FBuffer cmnd(N, 1.f);
+    float running = 0.f;
+    for (SizeType lag = 1; lag < N; ++lag) {
+      running += diff[lag];
+      cmnd[lag] =
+          running > 0.f ? diff[lag] * static_cast<float>(lag) / running : 1.f;
     }
 
-    // Difference function
-    diff[0] = 2 * corrs[N - 1] - 2 * fcorrs_lagged[0].real();
-    for (int i = 1; i < N; ++i) {
-      diff[i] = 2 * corrs[N - 1] - corrs[i - 1] - 2 * fcorrs_lagged[i].real();
-    }
+    // Restrict search to a plausible fundamental-frequency range.
+    const unsigned kMinFreq = 60;    // Hz
+    const unsigned kMaxFreq = 3500;  // Hz
+    const SizeType kMinLag = kFs / kMaxFreq + 1;
+    const SizeType kMaxLag = kFs / kMinFreq + 1;
+    const SizeType kLast = std::min(kMaxLag, N - 1);
 
-    // Normalize
-    const float kMean = std::accumulate(diff.begin(), diff.end(), 0.f) / N;
-    const float kSqSum = std::inner_product(
-        diff.begin(), diff.end(), diff.begin(), 0.f, std::plus<>(),
-        [kMean](float a, float b) { return (a - kMean) * (b - kMean); });
-    const float kStd = std::sqrt(kSqSum / N);
-    for (int i = 0; i < N; ++i) {
-      diff[i] = (diff[i] - kMean) / kStd;
-    }
-
-    // Find minimum below some threshold
-    const unsigned kFs = 16e3;
-    const unsigned max_freq_ind = kFs / 3500 + 1;
-    const float kThresh = 1.f;
-    for (int lag = max_freq_ind; lag < N; ++lag) {
-      if (diff[lag] < kThresh) {
-        while (diff[lag] > diff[lag + 1]) {
+    const float kThresh = 0.1f;
+    for (SizeType lag = kMinLag; lag < kLast; ++lag) {
+      if (cmnd[lag] < kThresh) {
+        // Walk to the local minimum.
+        while (lag < N - 1 && cmnd[lag] > cmnd[lag + 1]) {
           ++lag;
         }
-        return PitchType(kFs / (lag + 1));
+
+        // Parabolic interpolation for sub-sample lag precision.
+        float refined = static_cast<float>(lag);
+        if (lag > 0 && lag < N - 1) {
+          const float y0 = cmnd[lag - 1];
+          const float y1 = cmnd[lag];
+          const float y2 = cmnd[lag + 1];
+          const float denom = y0 - 2.f * y1 + y2;
+          if (denom != 0.f) {
+            refined = static_cast<float>(lag) + 0.5f * (y0 - y2) / denom;
+          }
+        }
+
+        const float f0 = static_cast<float>(kFs) / refined;
+        return PitchType{static_cast<unsigned>(std::lround(f0))};
       }
     }
 
-    return PitchType(-1);
+    return PitchType{0};
   }
-
- private:
-  std::unique_ptr<FFTImpl> fft_;
 };
 #endif  // YIN_H
