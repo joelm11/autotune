@@ -5,10 +5,6 @@
 HelloWorldEditor::HelloWorldEditor(HelloWorldProcessor& p)
     : AudioProcessorEditor(&p)
 {
-    label.setText("Hello, world!", juce::dontSendNotification);
-    label.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(label);
-
     setSize(400, 300);
 }
 
@@ -20,5 +16,5 @@ void HelloWorldEditor::paint(juce::Graphics& g)
 
 void HelloWorldEditor::resized()
 {
-    label.setBounds(getLocalBounds());
+    // No child components in the barebones version.
 }

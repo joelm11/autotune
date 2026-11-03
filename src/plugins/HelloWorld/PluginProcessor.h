@@ -3,47 +3,48 @@
 #include <JuceHeader.h>
 
 //==============================================================================
+// Barebones audio-only processor. Extend/override this class for real work.
 class HelloWorldProcessor  : public juce::AudioProcessor
 {
 public:
-    //==============================================================================
     HelloWorldProcessor();
-    ~HelloWorldProcessor() override;
+    ~HelloWorldProcessor() override = default;
 
-    //==============================================================================
+    //==========================================================================
+    // Audio processing
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
+    void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
-   #endif
-
-    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-
-    //==============================================================================
+    //==========================================================================
+    // Editor
     juce::AudioProcessorEditor* createEditor() override;
-    bool hasEditor() const override;
+    bool hasEditor() const override { return true; }
 
-    //==============================================================================
-    const juce::String getName() const override;
+    //==========================================================================
+    // Identity
+    const juce::String getName() const override { return JucePlugin_Name; }
+    double getTailLengthSeconds() const override { return 0.0; }
 
-    bool acceptsMidi() const override;
-    bool producesMidi() const override;
-    bool isMidiEffect() const override;
-    double getTailLengthSeconds() const override;
+    //==========================================================================
+    // No MIDI - audio only.
+    bool acceptsMidi() const override { return false; }
+    bool producesMidi() const override { return false; }
 
-    //==============================================================================
-    int getNumPrograms() override;
-    int getCurrentProgram() override;
-    void setCurrentProgram(int index) override;
-    const juce::String getProgramName(int index) override;
-    void changeProgramName(int index, const juce::String& newName) override;
+    //==========================================================================
+    // Programs - required by JUCE, but unused here.
+    int getNumPrograms() override { return 1; }
+    int getCurrentProgram() override { return 0; }
+    void setCurrentProgram(int index) override {}
+    const juce::String getProgramName(int index) override { return {}; }
+    void changeProgramName(int index, const juce::String& newName) override {}
 
-    //==============================================================================
-    void getStateInformation(juce::MemoryBlock& destData) override;
-    void setStateInformation(const void* data, int sizeInBytes) override;
+    //==========================================================================
+    // Persistence
+    void getStateInformation(juce::MemoryBlock& destData) override {}
+    void setStateInformation(const void* data, int sizeInBytes) override {}
 
 private:
-    //==============================================================================
+    //==========================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HelloWorldProcessor)
 };
