@@ -34,7 +34,7 @@ class PitchDetectTest : public testing::Test {
 };
 
 TEST_F(PitchDetectTest, Yin) {
-  Yin pd(kFrameSize);
+  Yin pd(kSr, kFrameSize);
 
   for (int i = 0; i < signals.size(); ++i) {
     unsigned fund_freq = pd.Process(signals[i]).f0;

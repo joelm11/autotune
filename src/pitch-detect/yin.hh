@@ -6,14 +6,14 @@
 
 class Yin : public PitchDetect {
  public:
-  Yin(const SizeType /*frame_sz*/) {}
+  Yin(const unsigned sample_rate, const SizeType /*frame_sz*/)
+      : kFs(sample_rate) {}
 
   PitchDetect::PitchType Process(const FBuffer& src) override {
     const SizeType N = src.size();
     if (N < 2) {
       return PitchType{0};
     }
-    const unsigned kFs = 16000;
 
     // Difference function: d(lag) = sum_j (src[j] - src[j+lag])^2
     FBuffer diff(N, 0.f);
@@ -69,5 +69,8 @@ class Yin : public PitchDetect {
 
     return PitchType{0};
   }
+
+ private:
+  const unsigned kFs;
 };
 #endif  // YIN_H

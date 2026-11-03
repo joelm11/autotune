@@ -4,6 +4,8 @@
 
 class PitchDetect {
  public:
+  virtual ~PitchDetect() = default;
+
   struct PitchType {
     unsigned f0;
   };
