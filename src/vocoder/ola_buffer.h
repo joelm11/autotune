@@ -1,14 +1,13 @@
 #ifndef OLA_BUFFER_H
 #define OLA_BUFFER_H
 
-#include <cstddef>
 #include <vector>
+
+#include "../api.hh"
 
 template <typename T>
 class OLABuffer {
  public:
-  using SizeType = std::size_t;
-
   OLABuffer(const SizeType frame_size, const SizeType hop_size)
       : kFrameSize_(frame_size),
         kBufferSize_(kFrameSize_ + hop_size),
@@ -29,7 +28,7 @@ class OLABuffer {
     // Copy the output frame from the buffer.
     // Zero the shifted out portion.
     std::vector<T> output(hop_size_);
-    for (std::size_t i = 0; i < hop_size_; ++i) {
+    for (SizeType i = 0; i < hop_size_; ++i) {
       output[i] = buffer_[(l_ + i) % kBufferSize_];
       buffer_[(l_ + i) % kBufferSize_] = 0;
     }

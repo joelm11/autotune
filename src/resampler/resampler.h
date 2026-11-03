@@ -1,5 +1,4 @@
-#include <vector>
-
+#include "../api.hh"
 #include "../external/speex_resampler/speex_resampler.h"
 #include "resampler_base.h"
 
@@ -11,7 +10,7 @@ class Resampler : public ResamplerBase {
         num_samples_in_(num_samples),
         num_samples_out_(num_samples * (float)out_rate / in_rate),
         resampler_(speex_resampler_init(1, in_rate, out_rate, 10, 0)),
-        output_buffer_(std::vector<float>(num_samples_out_)) {
+        output_buffer_(FBuffer(num_samples_out_)) {
     speex_resampler_skip_zeros(resampler_);
   }
 
@@ -32,7 +31,7 @@ class Resampler : public ResamplerBase {
     output_buffer_.resize(out_samples);
   }
 
-  std::vector<float> Resample(const std::vector<float>& input) override {
+  FBuffer Resample(const FBuffer& input) override {
     // Iterate over input channels and use resamplers to resample each channel.
     uint32_t in = num_samples_in_, out = num_samples_out_;
     speex_resampler_process_float(resampler_, 0, input.data(), &in,
@@ -44,5 +43,5 @@ class Resampler : public ResamplerBase {
   unsigned in_rate_, out_rate_;
   unsigned num_samples_in_, num_samples_out_;
   SpeexResamplerState* resampler_;
-  std::vector<float> output_buffer_;
+  FBuffer output_buffer_;
 };

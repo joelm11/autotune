@@ -1,12 +1,12 @@
-#ifndef API_RESAMPLER_RESAMPLER_BASE_H_
-#define API_RESAMPLER_RESAMPLER_BASE_H_
-#include <vector>
+#ifndef API_RESAMPLER_RESAMPLER_BASE_H
+#define API_RESAMPLER_RESAMPLER_BASE_H
+#include "../api.hh"
 
 class ResamplerBase {
  public:
   virtual ~ResamplerBase() = default;
 
-  virtual std::vector<float> Resample(const std::vector<float>& input) = 0;
+  virtual FBuffer Resample(const FBuffer& input) = 0;
 };
 
-#endif
+#endif  // API_RESAMPLER_RESAMPLER_BASE_H

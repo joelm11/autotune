@@ -11,8 +11,7 @@ VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
       kAnalysisHopSize(frame_sz / kAnalysisHops),
       kSynthesisHopSize_(kAnalysisHopSize * scale_factor),
       kAnalysisWindow_(ComputeHannWin<float>(kFrameSz_, kAnalysisHopSize)),
-      kSynthesisWindow_(
-          ComputeHannWin<float>(kFrameSz_, kSynthesisHopSize_)),
+      kSynthesisWindow_(ComputeHannWin<float>(kFrameSz_, kSynthesisHopSize_)),
       input_acc_(frame_sz),
       prev_frame_phase_(kFrameSz_, 0.0f),
       prev_frame_synth_phase_(kFrameSz_, 0.0f),
@@ -20,7 +19,7 @@ VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
   fft_ = std::make_unique<FFTImpl>(frame_sz);
 }
 
-VocoderImpl::FBuffer VocoderImpl::Process(const VocoderImpl::FBuffer& src) {
+FBuffer VocoderImpl::Process(const FBuffer& src) {
   input_acc_.Write(src);
 
   if (!input_acc_.Full()) {
@@ -54,31 +53,29 @@ VocoderImpl::FBuffer VocoderImpl::Process(const VocoderImpl::FBuffer& src) {
   return output_frame;
 }
 
-void VocoderImpl::Analysis(VocoderImpl::FBuffer& src,
-                           VocoderImpl::CFBuffer& out) {
+void VocoderImpl::Analysis(FBuffer& src, CFBuffer& out) {
   // Apply window function.
-  for (int i = 0; i < kFrameSz_; ++i) {
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
     src[i] *= kAnalysisWindow_[i];
   }
   // Convert FFT result to magnitude and phase format.
   fft_->Forward(src, out);
-  for (int i = 0; i < kFrameSz_; ++i) {
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
     out[i] = std::complex<float>(std::abs(out[i]), std::arg(out[i]));
   }
 }
 
-void VocoderImpl::ModifyPhaseT(VocoderImpl::CFBuffer& an_frame,
-                               VocoderImpl::FBuffer& prev_frame_phase,
-                               VocoderImpl::FBuffer& prev_frame_synth_phase) {
+void VocoderImpl::ModifyPhaseT(CFBuffer& an_frame, FBuffer& prev_frame_phase,
+                               FBuffer& prev_frame_synth_phase) {
   FBuffer bin_freqs(kFrameSz_), phase_advance(kFrameSz_),
       inter_result(kFrameSz_);
   // Constants.
-  for (int i = 0; i < kFrameSz_; ++i) {
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
     bin_freqs[i] = 2 * M_PI * i / kFrameSz_;
     phase_advance[i] = bin_freqs[i] * kAnalysisHopSize;
   }
   // Wrapped phase advance.
-  for (int i = 0; i < kFrameSz_; ++i) {
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
     inter_result[i] =
         an_frame[i].imag() - prev_frame_phase[i] - phase_advance[i];
     inter_result[i] =
@@ -86,11 +83,11 @@ void VocoderImpl::ModifyPhaseT(VocoderImpl::CFBuffer& an_frame,
     prev_frame_phase[i] = an_frame[i].imag();
   }
   // Instantaneous frequency.
-  for (int i = 0; i < kFrameSz_; ++i) {
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
     inter_result[i] = bin_freqs[i] + inter_result[i] / kAnalysisHopSize;
   }
   // Phase propagation and synthesis.
-  for (int i = 0; i < kFrameSz_; ++i) {
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
     inter_result[i] =
         prev_frame_synth_phase[i] + kSynthesisHopSize_ * inter_result[i];
     an_frame[i].imag(inter_result[i]);
@@ -98,18 +95,17 @@ void VocoderImpl::ModifyPhaseT(VocoderImpl::CFBuffer& an_frame,
   }
 }
 
-VocoderImpl::FBuffer VocoderImpl::Synthesis(VocoderImpl::CFBuffer& src,
-                                            OLABuffer<float>& out) {
+FBuffer VocoderImpl::Synthesis(CFBuffer& src, OLABuffer<float>& out) {
   const auto kNumSamples_ = src.size();
   FBuffer output_buffer_(kNumSamples_);
   // Convert magnitude and phase back to complex format.
-  for (int j = 0; j < kNumSamples_; ++j) {
+  for (SizeType j = 0; j < kNumSamples_; ++j) {
     src[j] = std::polar(src[j].real(), src[j].imag());
   }
   // Inverse FFT.
   fft_->Inverse(src, output_buffer_);
   // Apply window function.
-  for (int j = 0; j < kNumSamples_; ++j) {
+  for (SizeType j = 0; j < kNumSamples_; ++j) {
     output_buffer_[j] *= kSynthesisWindow_[j] / kNumSamples_;
   }
   // Overlap-add.

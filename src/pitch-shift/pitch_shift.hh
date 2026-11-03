@@ -1,15 +1,13 @@
 #ifndef PITCH_SHIFT_H
 #define PITCH_SHIFT_H
 
+#include "../api.hh"
 #include "../resampler/resampler.h"
 #include "../vocoder/vocoder.hh"
 
 class PitchShifter {
  public:
-  using SizeType = std::size_t;
-  using FBuffer = std::vector<float>;
-
-  PitchShifter(const int frame_size, const int sample_rate,
+  PitchShifter(const SizeType frame_size, const SizeType sample_rate,
                const float scale_factor);
 
   FBuffer Process(const FBuffer& src);

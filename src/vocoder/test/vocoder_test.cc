@@ -1,11 +1,11 @@
 #include "../vocoder.hh"
-#include "../window.h"
 
 #include <gtest/gtest.h>
 
 #include <cmath>
 #include <numbers>
 
+#include "../window.h"
 #include "AudioFile.h"
 
 class TestOutputFile {
@@ -70,8 +70,8 @@ TEST_F(VocoderTest, UniformSine) {
 // window^2 is exactly 1 for every sample (i.e. the window is COLA-correct and
 // the output has a flat envelope with unity gain).
 TEST_F(VocoderTest, WindowCola) {
-  const std::vector<std::size_t> hops = {128, 256, 512};
-  for (const std::size_t hop : hops) {
+  const std::vector<SizeType> hops = {128, 256, 512};
+  for (const SizeType hop : hops) {
     const auto window = ComputeHannWin<float>(kFrameSize, hop);
 
     // Check the overlap-add sum at every sample in the steady-state middle of

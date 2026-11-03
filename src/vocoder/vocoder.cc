@@ -11,6 +11,4 @@ Vocoder::Vocoder(const SizeType frame_size, const SizeType sample_rate,
 
 Vocoder::~Vocoder() {}
 
-Vocoder::FBuffer Vocoder::Process(const FBuffer& src) {
-  return impl_->Process(src);
-}
+FBuffer Vocoder::Process(const FBuffer& src) { return impl_->Process(src); }
