@@ -2,7 +2,7 @@
 
 #include "ola_buffer.h"
 #include "utils.hh"
-#include "window.h"
+#include "window.hh"
 
 VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
                          const float scale_factor)

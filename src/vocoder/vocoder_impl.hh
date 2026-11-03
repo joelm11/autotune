@@ -1,8 +1,5 @@
 #ifndef VOCODER_IMPL_H
 #define VOCODER_IMPL_H
-
-#include <complex>
-
 #include "../../api.hh"
 #include "fft/fft_impl.h"
 #include "ola_buffer.h"
