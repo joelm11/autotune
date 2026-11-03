@@ -10,3 +10,6 @@ add_subdirectory(AudioFile)
 
 # Resampling implementation
 add_subdirectory(speex_resampler)
+
+# JUCE audio plugin framework (submodule)
+add_subdirectory(JUCE)
