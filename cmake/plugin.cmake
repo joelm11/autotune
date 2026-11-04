@@ -65,6 +65,7 @@ function(juce_plugin target)
             JUCE_WEB_BROWSER=0
             JUCE_USE_CURL=0
             JUCE_VST3_CAN_REPLACE_VST2=0)
+    target_compile_options(${target} PRIVATE "-w")
 
     if(ARG_SOURCES)
         target_sources(${target} PRIVATE ${ARG_SOURCES})

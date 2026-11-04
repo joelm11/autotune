@@ -21,6 +21,7 @@ void Processor::processBlock(juce::AudioBuffer<float>& buffer,
       std::vector<float>(buffer.getReadPointer(0),
                          buffer.getReadPointer(0) + buffer.getNumSamples()));
 
+  // Debug
   std::cout << "F0 detected: " << kPitch.f0 << std::endl;
 }
 
