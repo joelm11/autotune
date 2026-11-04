@@ -1,7 +1,7 @@
 #include "editor.hh"
 
 Editor::Editor(Processor& p) : juce::AudioProcessorEditor(p) {
-  pitchLabel.setText("F0: -- Hz", juce::dontSendNotification);
+  pitchLabel.setText("F0: Hello Joel <3 Hz", juce::dontSendNotification);
   pitchLabel.setJustificationType(juce::Justification::centred);
   pitchLabel.setFont(juce::FontOptions(30.0f));
   addAndMakeVisible(pitchLabel);
