@@ -3,7 +3,7 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-HelloWorldEditor::HelloWorldEditor(HelloWorldProcessor& p)
+Editor::Editor(HelloWorldProcessor& p)
     : AudioProcessorEditor(&p), processorRef(p) {
   pitchLabel.setText("F0: -- Hz", juce::dontSendNotification);
   pitchLabel.setJustificationType(juce::Justification::centred);
@@ -14,17 +14,17 @@ HelloWorldEditor::HelloWorldEditor(HelloWorldProcessor& p)
   startTimerHz(20);
 }
 
-HelloWorldEditor::~HelloWorldEditor() { stopTimer(); }
+Editor::~Editor() { stopTimer(); }
 
 //==============================================================================
-void HelloWorldEditor::paint(juce::Graphics& g) {
+void Editor::paint(juce::Graphics& g) {
   g.fillAll(
       getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 }
 
-void HelloWorldEditor::resized() { pitchLabel.setBounds(getLocalBounds()); }
+void Editor::resized() { pitchLabel.setBounds(getLocalBounds()); }
 
-void HelloWorldEditor::timerCallback() {
+void Editor::timerCallback() {
   const unsigned f0 = processorRef.getDetectedPitchHz();
 
   pitchLabel.setText(f0 > 0 ? "F0: " + juce::String(f0) + " Hz" : "F0: -- Hz",

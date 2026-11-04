@@ -43,5 +43,5 @@ add_subdirectory(src/resampler)
 add_subdirectory(src/pitch-shift)
 add_subdirectory(src/pitch-detect)
 
-# JUCE audio plugins (VST3 + standalone).
-add_subdirectory(src/plugins)
+# Plugin builds
+add_subdirectory(src/plugin)

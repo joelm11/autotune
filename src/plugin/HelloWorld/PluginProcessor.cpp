@@ -60,7 +60,7 @@ void HelloWorldProcessor::runPitchDetection() {
 
 //==============================================================================
 juce::AudioProcessorEditor* HelloWorldProcessor::createEditor() {
-  return new HelloWorldEditor(*this);
+  return new Editor(*this);
 }
 
 //==============================================================================

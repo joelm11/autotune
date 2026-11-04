@@ -7,11 +7,10 @@
 //==============================================================================
 // Editor that displays the fundamental frequency detected by the processor.
 // Extend/override this class for real UI work.
-class HelloWorldEditor : public juce::AudioProcessorEditor,
-                         private juce::Timer {
+class Editor : public juce::AudioProcessorEditor, private juce::Timer {
  public:
-  explicit HelloWorldEditor(HelloWorldProcessor&);
-  ~HelloWorldEditor() override;
+  explicit Editor(HelloWorldProcessor&);
+  ~Editor() override;
 
   //==========================================================================
   void paint(juce::Graphics&) override;
@@ -24,5 +23,5 @@ class HelloWorldEditor : public juce::AudioProcessorEditor,
   juce::Label pitchLabel;
 
   //==========================================================================
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(HelloWorldEditor)
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Editor)
 };
