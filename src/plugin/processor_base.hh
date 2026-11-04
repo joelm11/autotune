@@ -7,8 +7,8 @@ class ProcessorBase : public juce::AudioProcessor {
   ProcessorBase()
       : AudioProcessor(
             BusesProperties()
-                .withInput("Input", juce::AudioChannelSet::stereo(), true)
-                .withOutput("Output", juce::AudioChannelSet::stereo(), true)) {}
+                .withInput("Input", juce::AudioChannelSet::mono(), true)
+                .withOutput("Output", juce::AudioChannelSet::mono(), true)) {}
   ~ProcessorBase() override = default;
 
   // Audio processing

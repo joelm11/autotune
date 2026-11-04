@@ -1,5 +1,6 @@
 #ifndef PLUGIN_PROCESSOR_H
 #define PLUGIN_PROCESSOR_H
+#include "pitch_detect.hh"
 #include "processor_base.hh"
 
 class Processor : public ProcessorBase {
@@ -18,6 +19,8 @@ class Processor : public ProcessorBase {
   juce::AudioProcessorEditor* createEditor() override;
 
  private:
+  std::unique_ptr<PitchDetect> pd;
+
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Processor)
 };
 #endif  // PLUGIN_PROCESSOR_H
