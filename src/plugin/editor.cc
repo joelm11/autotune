@@ -1,17 +1,21 @@
 #include "editor.hh"
 
 Editor::Editor(Processor& p) : juce::AudioProcessorEditor(p) {
-  pitchLabel.setText("F0: Hello Joel <3 Hz", juce::dontSendNotification);
-  pitchLabel.setJustificationType(juce::Justification::centred);
-  pitchLabel.setFont(juce::FontOptions(30.0f));
-  addAndMakeVisible(pitchLabel);
+  addAndMakeVisible(panel_a);
+  addAndMakeVisible(panel_b);
 
   setSize(400, 200);
 }
 
-void Editor::paint(juce::Graphics& g) {
-  g.fillAll(
-      getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-}
+void Editor::paint(juce::Graphics& g) {}
 
-void Editor::resized() { pitchLabel.setBounds(getLocalBounds()); }
+void Editor::resized() {
+  juce::FlexBox flex;
+  flex.flexDirection = FlexBox::Direction::row;
+  // flex.justifyContent = FlexBox::JustifyContent::spaceBetween;
+  // flex.alignItems = FlexBox::AlignItems::stretch;
+
+  flex.items.add(FlexItem(panel_a).withFlex(3.f));
+  flex.items.add(FlexItem(panel_a).withFlex(1.f));
+  flex.performLayout(getLocalBounds());
+}

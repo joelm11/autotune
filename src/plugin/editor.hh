@@ -2,6 +2,8 @@
 #define PLUGIN_EDITOR_H
 #include <JuceHeader.h>
 
+#include "components/analysis_panel.hh"
+#include "components/select_panel.hh"
 #include "processor.hh"
 
 class Editor : public juce::AudioProcessorEditor {
@@ -13,7 +15,9 @@ class Editor : public juce::AudioProcessorEditor {
   void resized() override;
 
  private:
-  juce::Label pitchLabel;
+  AnalysisPanel panel_a;
+  SelectPanel panel_b;
+
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Editor)
 };
 #endif  // PLUGIN_EDITOR_H

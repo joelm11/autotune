@@ -22,7 +22,7 @@ void Processor::processBlock(juce::AudioBuffer<float>& buffer,
                          buffer.getReadPointer(0) + buffer.getNumSamples()));
 
   // Debug
-  std::cout << "F0 detected: " << kPitch.f0 << std::endl;
+  // std::cout << "F0 detected: " << kPitch.f0 << std::endl;
 }
 
 juce::AudioProcessorEditor* Processor::createEditor() {

@@ -19,6 +19,9 @@ class Dial : public juce::Slider {
               juce::Colour(0xff202020));
   }
 
+  //   void paint(juce::Graphics&) override {}
+  //   void resized() override {}
+
  private:
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Dial)
 };
