@@ -3,11 +3,20 @@
 #pragma once
 #include <JuceHeader.h>
 
-class Spectral : juce::Component {
+class Spectral : public juce::Component {
  public:
-  void paint(juce::Graphics&) override {}
+  void paint(juce::Graphics& g) override {
+    // Paint the cached spectrum
+
+    g.fillAll(juce::Colours::orange);
+  }
 
   void resized() override {}
+
+  void update() {
+    // Read the newest spectrum
+    //
+  }
 
  private:
 };

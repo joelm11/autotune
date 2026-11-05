@@ -3,9 +3,12 @@
 #pragma once
 #include <JuceHeader.h>
 
-class Keys : juce::Component {
+class Keys : public juce::Component {
  public:
-  void paint(juce::Graphics&) override {}
+  void paint(juce::Graphics& g) override {
+    g.fillAll(juce::Colours::yellowgreen);
+  }
+
   void resized() override {}
 
  private:

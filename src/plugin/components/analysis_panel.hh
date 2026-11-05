@@ -9,8 +9,19 @@
 
 class AnalysisPanel : public juce::Component {
  public:
+  AnalysisPanel() {
+    addAndMakeVisible(spectrum);
+    addAndMakeVisible(keys);
+  }
+
   void paint(juce::Graphics& g) override {
-    g.fillAll(juce::Colours::lightblue);
+    juce::FlexBox flex;
+    flex.flexDirection = FlexBox::Direction::column;
+    flex.alignItems = FlexBox::AlignItems::stretch;
+
+    flex.items.add(FlexItem(spectrum).withFlex(3.f));
+    flex.items.add(FlexItem(keys).withFlex(1.f));
+    flex.performLayout(getLocalBounds());
   }
 
   void resized() override {}
