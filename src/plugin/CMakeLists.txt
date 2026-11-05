@@ -16,3 +16,6 @@ juce_plugin(June
 
 # Link the pitch-detection library so the plugin can use YIN.
 target_link_libraries(June PRIVATE pitch-detect)
+
+# Link the lock-free reader-writer queue so the plugin processor can use it.
+target_link_libraries(June PRIVATE readerwriterqueue)

@@ -1,3 +1,12 @@
+# Lock-free reader-writer queue (header-only, fetched from GitHub)
+include(FetchContent)
+FetchContent_Declare(
+  readerwriterqueue
+  GIT_REPOSITORY https://github.com/cameron314/readerwriterqueue
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(readerwriterqueue)
+
 # FFT library
 set(KISSFFT_TEST OFF CACHE BOOL "Build kissfft test")
 set(KISSFFT_TOOLS OFF CACHE BOOL "Build kissfft tools")
