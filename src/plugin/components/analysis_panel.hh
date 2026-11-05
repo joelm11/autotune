@@ -4,12 +4,13 @@
 
 #include <JuceHeader.h>
 
+#include "../state.hh"
 #include "keys.hh"
 #include "spectral.hh"
 
 class AnalysisPanel : public juce::Component {
  public:
-  AnalysisPanel() {
+  AnalysisPanel(State& state) : spectrum(state) {
     addAndMakeVisible(spectrum);
     addAndMakeVisible(keys);
   }

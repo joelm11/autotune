@@ -1,6 +1,9 @@
 #include "editor.hh"
 
-Editor::Editor(Processor& p) : juce::AudioProcessorEditor(p) {
+#include "components/analysis_panel.hh"
+
+Editor::Editor(Processor& p)
+    : juce::AudioProcessorEditor(p), panel_a(p.state), panel_b(p.state) {
   addAndMakeVisible(panel_a);
   addAndMakeVisible(panel_b);
 

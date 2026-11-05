@@ -4,11 +4,14 @@
 
 #include <JuceHeader.h>
 
+#include "../state.hh"
 #include "keys.hh"
 #include "spectral.hh"
 
 class SelectPanel : public juce::Component {
  public:
+  explicit SelectPanel(State& state) : spectrum(state) {}
+
   void paint(juce::Graphics& g) override {
     g.fillAll(juce::Colours::lavenderblush);
   }

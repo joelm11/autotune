@@ -14,7 +14,7 @@ void Processor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   pd = std::make_unique<Yin>(sampleRate, samplesPerBlock);
 
   fft.out = CFBuffer(samplesPerBlock);
-  fft.mag = FBuffer(samplesPerBlock);
+  fft.mag = FBuffer(samplesPerBlock / 2);
   fft.impl = std::make_unique<FFTImpl>(samplesPerBlock);
 }
 
@@ -31,13 +31,11 @@ void Processor::processBlock(juce::AudioBuffer<float>& buffer,
 
   // Spectrum
   fft.impl->Forward(src, fft.out);
-  for (int i = 0; i < fft.out.size(); ++i) {
+  fft.mag[0] = 0;
+  for (int i = 1; i < fft.mag.size(); ++i) {
     fft.mag[i] = (std::abs(fft.out[i]));
   }
-  const auto kRes = state.spectra.enqueue(fft.mag);
-
-  // Debug
-  // std::cout << "F0 detected: " << kPitch.f0 << std::endl;
+  state.spectra.enqueue(fft.mag);
 }
 
 juce::AudioProcessorEditor* Processor::createEditor() {

@@ -22,6 +22,8 @@ class Processor : public ProcessorBase {
   bool hasEditor() const override { return true; }
   juce::AudioProcessorEditor* createEditor() override;
 
+  State state;
+
  private:
   struct FFTContext {
     CFBuffer out;
@@ -29,7 +31,6 @@ class Processor : public ProcessorBase {
     std::unique_ptr<FFTImpl> impl;
   };
 
-  State state;
   FFTContext fft;
   std::unique_ptr<PitchDetect> pd;
 
