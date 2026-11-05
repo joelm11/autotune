@@ -1,7 +1,11 @@
 #ifndef PLUGIN_PROCESSOR_H
 #define PLUGIN_PROCESSOR_H
+#include <memory>
+
+#include "fft/fft_impl.h"
 #include "pitch_detect.hh"
 #include "processor_base.hh"
+#include "state.hh"
 
 class Processor : public ProcessorBase {
  public:
@@ -19,6 +23,14 @@ class Processor : public ProcessorBase {
   juce::AudioProcessorEditor* createEditor() override;
 
  private:
+  struct FFTContext {
+    CFBuffer out;
+    FBuffer mag;
+    std::unique_ptr<FFTImpl> impl;
+  };
+
+  State state;
+  FFTContext fft;
   std::unique_ptr<PitchDetect> pd;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Processor)
