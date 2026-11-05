@@ -1,8 +1,8 @@
 #ifndef VOCODER_IMPL_H
 #define VOCODER_IMPL_H
 #include "../../api.hh"
-#include "fft/fft_impl.h"
-#include "ola_buffer.h"
+#include "../utils/fft/fft_impl.h"
+#include "../utils/ola_buffer.h"
 #include "utils.hh"
 
 class VocoderImpl {

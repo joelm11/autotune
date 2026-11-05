@@ -1,8 +1,8 @@
 #include "vocoder_impl.hh"
 
-#include "ola_buffer.h"
+#include "../utils/ola_buffer.h"
 #include "utils.hh"
-#include "window.hh"
+#include "../utils/window.hh"
 
 VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
                          const float scale_factor)

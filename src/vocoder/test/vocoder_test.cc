@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numbers>
 
-#include "../window.hh"
+#include "../../utils/window.hh"
 #include "AudioFile.h"
 
 class TestOutputFile {
