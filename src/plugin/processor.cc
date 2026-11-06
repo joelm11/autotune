@@ -13,7 +13,7 @@ Processor::~Processor() {}
 
 void Processor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   pd = std::make_unique<Yin>(sampleRate, samplesPerBlock);
-  ps = std::make_unique<PitchShifter>(samplesPerBlock, sampleRate, 1.5);
+  ps = std::make_unique<PitchShifter>(samplesPerBlock, sampleRate, 1.2);
 
   fft.out = CFBuffer(samplesPerBlock);
   fft.mag = FBuffer(samplesPerBlock / 2);
@@ -37,8 +37,6 @@ void Processor::processBlock(juce::AudioBuffer<float>& buffer,
   // Write shifted audio back to buffer
   if (!kShifted.empty()) {
     buffer.copyFrom(0, 0, kShifted.data(), kShifted.size());
-  } else {
-    std::cout << "Empty\n";
   }
 
   // Spectrum

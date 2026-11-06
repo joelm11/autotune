@@ -66,6 +66,27 @@ TEST_F(PitchShiftTest, ShiftDialogueUp) {
   fout.Write(output_buff);
 }
 
+// Every non-empty Process must return the same number of samples it was given,
+// at the correct duration-preserving resampling ratio (no truncation/padding).
+TEST_F(PitchShiftTest, ReturnsSameSampleCount) {
+  // Feed contiguous, vocoder-aligned frames exactly as a streaming caller
+  // (and the audio tests) would. Streaming mode makes even the first frame
+  // full length, its startup latency appearing as leading zeros.
+  const std::vector<int> frame_sizes = {512, 1024, 2048};
+  const int kNumFrames = 12;
+
+  for (const float kScaleFactor : {0.5f, 1.5f, 2.f, 3.f}) {
+    for (const int frame_size : frame_sizes) {
+      PitchShifter ps(frame_size, 44100, kScaleFactor);
+      for (int f = 0; f < kNumFrames; ++f) {
+        auto out = ps.Process(std::vector<float>(frame_size, 0.5f));
+        if (out.empty()) continue;
+        EXPECT_EQ(out.size(), static_cast<SizeType>(frame_size));
+      }
+    }
+  }
+}
+
 // Shift the pitch of the dialogue clip down. With a scale factor of 0.5 the
 // phase vocoder shortens the audio to half its length (keeping the pitch
 // intact) and the resampler stretches it back to the original duration,

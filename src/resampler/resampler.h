@@ -31,8 +31,16 @@ class Resampler : public ResamplerBase {
     output_buffer_.resize(out_samples);
   }
 
+  // Set the resampling ratio output_per_input = ratio_num / ratio_den so the
+  // filter honours the true duration ratio (speex args are swapped for this).
+  void SetRatio(const unsigned int ratio_num, const unsigned int ratio_den) {
+    speex_resampler_set_rate_frac(resampler_, ratio_den, ratio_num, in_rate_,
+                                  out_rate_);
+  }
+
+  unsigned int NumSamplesOut() const { return num_samples_out_; }
+
   FBuffer Resample(const FBuffer& input) override {
-    // Iterate over input channels and use resamplers to resample each channel.
     uint32_t in = num_samples_in_, out = num_samples_out_;
     speex_resampler_process_float(resampler_, 0, input.data(), &in,
                                   output_buffer_.data(), &out);

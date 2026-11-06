@@ -16,10 +16,14 @@ FBuffer PitchShifter::Process(const FBuffer& src) {
     return {};
   }
 
-  if (stretched.size() != static_cast<SizeType>(resample_in_)) {
-    const int in_samples = static_cast<int>(stretched.size());
-    resampler.SetInOutSamples(in_samples,
-                              static_cast<int>(in_samples / scale_factor_));
+  // Resample stretched back to exactly src.size() samples at the true
+  // duration-preserving ratio (out/in = src/stretched).
+  if (stretched.size() != static_cast<SizeType>(resample_in_) ||
+      src.size() != static_cast<SizeType>(resampler.NumSamplesOut())) {
+    resampler.SetRatio(static_cast<unsigned int>(src.size()),
+                       static_cast<unsigned int>(stretched.size()));
+    resampler.SetInOutSamples(static_cast<int>(stretched.size()),
+                              static_cast<int>(src.size()));
   }
 
   return resampler.Resample(stretched);
