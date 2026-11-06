@@ -4,6 +4,7 @@
 
 #include "editor.hh"
 #include "fft/fft_impl.h"
+#include "pitch_shift.hh"
 #include "yin.hh"
 
 Processor::Processor() : ProcessorBase() {}
@@ -12,6 +13,7 @@ Processor::~Processor() {}
 
 void Processor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   pd = std::make_unique<Yin>(sampleRate, samplesPerBlock);
+  ps = std::make_unique<PitchShifter>(samplesPerBlock, sampleRate, 1.5);
 
   fft.out = CFBuffer(samplesPerBlock);
   fft.mag = FBuffer(samplesPerBlock / 2);
@@ -26,8 +28,18 @@ void Processor::processBlock(juce::AudioBuffer<float>& buffer,
       buffer.getReadPointer(0),
       buffer.getReadPointer(0) + buffer.getNumSamples());
 
-  // Pitch
+  // Pitch detect
   const PitchDetect::PitchType kPitch = pd->Process(src);
+
+  // Pitch shift
+  const auto kShifted = ps->Process(src);
+
+  // Write shifted audio back to buffer
+  if (!kShifted.empty()) {
+    buffer.copyFrom(0, 0, kShifted.data(), kShifted.size());
+  } else {
+    std::cout << "Empty\n";
+  }
 
   // Spectrum
   fft.impl->Forward(src, fft.out);
