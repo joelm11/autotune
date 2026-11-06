@@ -13,7 +13,7 @@ Processor::~Processor() {}
 
 void Processor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   pd = std::make_unique<Yin>(sampleRate, samplesPerBlock);
-  ps = std::make_unique<PitchShifter>(samplesPerBlock, sampleRate, 1.2);
+  ps = std::make_unique<PitchShifter>(samplesPerBlock, sampleRate, 1.5);
 
   fft.out = CFBuffer(samplesPerBlock);
   fft.mag = FBuffer(samplesPerBlock / 2);
