@@ -39,4 +39,27 @@ inline bool writeWavFile(const std::string& path, int sample_rate,
   return writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
 }
 
+// Loads a mono version (first channel) of the WAV at `path` into `samples`,
+// and reports its sample rate. Returns false if the file could not be read.
+inline bool readWavFile(const std::string& path, int& sampleRateOut,
+                        std::vector<float>& samplesOut) {
+  juce::File file(juce::File::getCurrentWorkingDirectory().getChildFile(path));
+
+  juce::AudioFormatManager manager;
+  manager.registerBasicFormats();
+  std::unique_ptr<juce::AudioFormatReader> reader(
+      manager.createReaderFor(file));
+  if (reader == nullptr) return false;
+
+  const auto numSamples = static_cast<int>(reader->lengthInSamples);
+  juce::AudioBuffer<float> decoded(static_cast<int>(reader->numChannels),
+                                   numSamples);
+  if (!reader->read(&decoded, 0, numSamples, 0, true, true)) return false;
+
+  sampleRateOut = static_cast<int>(reader->sampleRate);
+  samplesOut.assign(decoded.getReadPointer(0),
+                    decoded.getReadPointer(0) + numSamples);
+  return true;
+}
+
 }  // namespace plugin_test

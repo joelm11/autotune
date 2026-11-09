@@ -16,6 +16,10 @@ if(STANDALONE_BUILD AND DEBUG)
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
+    # The dialogue test reads the same mono input the vocoder tests use.
+    target_compile_definitions(test_plugin PRIVATE
+        AUDIO_FILE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../vocoder/test/resources/dialog_clip_stereo.wav")
+
     target_link_libraries(test_plugin PRIVATE
         juce::juce_audio_utils
         juce::juce_recommended_config_flags
