@@ -34,6 +34,7 @@ void Processor::processBlock(juce::AudioBuffer<float>& buffer,
 
   // Pitch detect
   const PitchDetect::PitchType kPitch = pd->Process(src);
+  state.f0.store(kPitch.f0);
 
   // Pitch correction
   const auto kCorrected = pc->Process(src, static_cast<float>(kPitch.f0));

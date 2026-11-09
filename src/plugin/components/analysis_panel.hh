@@ -19,7 +19,7 @@ class AnalysisPanel : public juce::Component {
     flex.alignItems = juce::FlexBox::AlignItems::stretch;
 
     flex.items.add(juce::FlexItem(spectrum).withFlex(3.f));
-    flex.items.add(juce::FlexItem(keys).withFlex(1.f));
+    // flex.items.add(juce::FlexItem(keys).withFlex(1.f));
     flex.performLayout(getLocalBounds());
   }
 

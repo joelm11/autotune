@@ -23,6 +23,9 @@ class State {
 
   // Processor -> UI
   ReaderWriterQueue<FBuffer> spectra;
+
+  // Detected fundamental frequency (Hz) from the pitch tracker; 0 if none.
+  std::atomic<unsigned> f0{0};
 };
 }  // namespace
 
