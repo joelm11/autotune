@@ -6,9 +6,16 @@
 #include <functional>
 #include <vector>
 
+#include "../state.hh"
+
 class Dropdown : public juce::Component {
  public:
   Dropdown() = default;
+  explicit Dropdown(State& state) : state_(&state) {}
+
+  //! Associates this dropdown with the plugin state; selecting an option
+  //! writes the chosen key into state.key.
+  void setState(State& state) { state_ = &state; }
 
   void setOptions(const std::vector<juce::String>& options) {
     options_ = options;
@@ -70,6 +77,11 @@ class Dropdown : public juce::Component {
                        [this](int result) {
                          if (result > 0 && result - 1 != selected_) {
                            selected_ = result - 1;
+                           if (state_) {
+                             // The option list is kept in pitch::Key order, so
+                             // the selected index maps directly onto the key.
+                             state_->key = static_cast<pitch::Key>(selected_);
+                           }
                            if (on_change_) on_change_(selected_);
                            repaint();
                          }
@@ -79,6 +91,7 @@ class Dropdown : public juce::Component {
  private:
   std::vector<juce::String> options_;
   int selected_ = 0;
+  State* state_ = nullptr;
   std::function<void(int)> on_change_;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Dropdown)

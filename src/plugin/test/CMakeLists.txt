@@ -25,7 +25,7 @@ if(STANDALONE_BUILD AND DEBUG)
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags
         pitch-detect
-        pitch-shift
+        pitch-correct
         readerwriterqueue
         AudioFile
         GTest::gtest_main)

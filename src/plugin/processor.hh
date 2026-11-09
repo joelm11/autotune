@@ -3,8 +3,8 @@
 #include <memory>
 
 #include "fft/fft_impl.h"
+#include "pitch_correct.hh"
 #include "pitch_detect.hh"
-#include "pitch_shift.hh"
 #include "processor_base.hh"
 #include "state.hh"
 
@@ -34,7 +34,7 @@ class Processor : public ProcessorBase {
 
   FFTContext fft;
   std::unique_ptr<PitchDetect> pd;
-  std::unique_ptr<PitchShifter> ps;
+  std::unique_ptr<PitchCorrect> pc;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Processor)
 };

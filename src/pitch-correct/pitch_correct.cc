@@ -14,6 +14,13 @@ PitchCorrect::PitchCorrect(const Key key, const float adjustment_rate)
 
 PitchCorrect::~PitchCorrect() = default;
 
+void PitchCorrect::SetKey(const Key new_key) {
+  if (new_key == key) {
+    return;
+  }
+  key = new_key;
+}
+
 float PitchCorrect::ScaleFactor(const float fund_freq) const {
   // Ratio required to take the detected fundamental onto the nearest note of
   // the selected scale. adjustment_rate_ blends between "no correction" (0)

@@ -3,6 +3,7 @@
 #include <readerwriterqueue.h>
 
 #include "../api.hh"
+#include "pitch.hh"
 
 namespace {
 using namespace moodycamel;
@@ -17,6 +18,10 @@ class State {
  public:
   State() { spectra = ReaderWriterQueue<FBuffer>(16); }
 
+  // UI -> Processor
+  std::atomic<pitch::Key> key{pitch::Key::C};
+
+  // Processor -> UI
   ReaderWriterQueue<FBuffer> spectra;
 };
 }  // namespace

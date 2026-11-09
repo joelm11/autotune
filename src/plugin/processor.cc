@@ -4,7 +4,7 @@
 
 #include "editor.hh"
 #include "fft/fft_impl.h"
-#include "pitch_shift.hh"
+#include "pitch_correct.hh"
 #include "yin.hh"
 
 Processor::Processor() : ProcessorBase() {}
@@ -13,7 +13,9 @@ Processor::~Processor() {}
 
 void Processor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   pd = std::make_unique<Yin>(sampleRate, samplesPerBlock);
-  ps = std::make_unique<PitchShifter>(samplesPerBlock, sampleRate, 1.5);
+  // Default to full correction onto the C-major scale; the note targets are
+  // derived from the detected fundamental, so no block size is needed here.
+  pc = std::make_unique<PitchCorrect>(pitch::Key::C, 1.f);
 
   fft.out = CFBuffer(samplesPerBlock);
   fft.mag = FBuffer(samplesPerBlock / 2);
@@ -24,6 +26,8 @@ void Processor::releaseResources() {}
 
 void Processor::processBlock(juce::AudioBuffer<float>& buffer,
                              juce::MidiBuffer& midi) {
+  pc->SetKey(state.key.load());
+
   const std::vector<float> src(
       buffer.getReadPointer(0),
       buffer.getReadPointer(0) + buffer.getNumSamples());
@@ -31,12 +35,12 @@ void Processor::processBlock(juce::AudioBuffer<float>& buffer,
   // Pitch detect
   const PitchDetect::PitchType kPitch = pd->Process(src);
 
-  // Pitch shift
-  const auto kShifted = ps->Process(src);
+  // Pitch correction
+  const auto kCorrected = pc->Process(src, static_cast<float>(kPitch.f0));
 
-  // Write shifted audio back to buffer
-  if (!kShifted.empty()) {
-    buffer.copyFrom(0, 0, kShifted.data(), kShifted.size());
+  // Write corrected audio back to buffer
+  if (!kCorrected.empty()) {
+    buffer.copyFrom(0, 0, kCorrected.data(), kCorrected.size());
   }
 
   // Spectrum

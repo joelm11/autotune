@@ -18,6 +18,7 @@ class SelectPanel : public juce::Component {
     label.setJustificationType(juce::Justification::centred);
 
     dropdown.setOptions({"C", "G", "D", "A", "E"});
+    dropdown.setState(state);
     dropdown.setOnChange([this](int) {
       label.setText("Defaults to " + dropdown.getSelectedText() + "4",
                     juce::NotificationType::dontSendNotification);

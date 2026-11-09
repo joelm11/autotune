@@ -15,7 +15,7 @@ juce_plugin(June
         )
 
 target_link_libraries(June PRIVATE pitch-detect)
-target_link_libraries(June PRIVATE pitch-shift)
+target_link_libraries(June PRIVATE pitch-correct)
 target_link_libraries(June PRIVATE readerwriterqueue)
 
 if(STANDALONE_BUILD AND DEBUG)

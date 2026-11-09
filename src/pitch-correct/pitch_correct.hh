@@ -14,6 +14,9 @@ class PitchCorrect {
   PitchCorrect(const Key key, const float adjustment_rate);
   ~PitchCorrect();
 
+  //! Updates the scale key from UI state. A no-op when the key is unchanged.
+  void SetKey(const Key new_key);
+
   FBuffer Process(const FBuffer& src, const float fund_freq);
 
  private:
