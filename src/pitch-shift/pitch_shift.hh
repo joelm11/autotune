@@ -10,11 +10,13 @@ class PitchShifter {
   PitchShifter(const SizeType frame_size, const SizeType sample_rate,
                const float scale_factor);
 
+  // Reset the pitch-shift ratio
+  void SetScaleFactor(const float scale_factor);
+
   FBuffer Process(const FBuffer& src);
 
  private:
-  const int resample_in_;
-  const float scale_factor_;
+  float scale_factor_;
   Vocoder vocoder;
   Resampler resampler;
 };
