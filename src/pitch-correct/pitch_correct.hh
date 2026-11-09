@@ -1,26 +1,29 @@
 #ifndef PITCH_CORRECT_H
 #define PITCH_CORRECT_H
+#include <memory>
+
 #include "../api.hh"
+#include "pitch.hh"
+
+class PitchShifter;
 
 class PitchCorrect {
  public:
-  struct PitchCorrectType {
-    unsigned octave;
-    float correction_factor;
-  };
+  using Key = pitch::Key;
 
-  enum Key { C, G, D, A, E };
-
-  PitchCorrect(const Key key, const float adjustment_rate) {}
+  PitchCorrect(const Key key, const float adjustment_rate);
+  ~PitchCorrect();
 
   FBuffer Process(const FBuffer& src, const float fund_freq);
 
  private:
-  unsigned Octave(const float fund_freq);
-  unsigned NearestNoteFreq(const float fund_freq);
-  std::vector<float> ScaleNoteFreqs(const unsigned octave, const Key key);
+  // Ratio required to take the detected fundamental onto the nearest note of
+  // the selected scale.
+  float ScaleFactor(const float fund_freq) const;
 
   Key key;
-  float adjustment_rate = 1.f;
+  float adjustment_rate_ = 1.f;
+  float last_scale_factor_ = 1.f;
+  std::unique_ptr<PitchShifter> shifter_;
 };
 #endif  // PITCH_CORRECT_H
