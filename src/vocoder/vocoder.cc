@@ -11,4 +11,8 @@ Vocoder::Vocoder(const SizeType frame_size, const SizeType sample_rate,
 
 Vocoder::~Vocoder() {}
 
+void Vocoder::SetScaleFactor(const float scale_factor) {
+  impl_->SetScaleFactor(scale_factor);
+}
+
 FBuffer Vocoder::Process(const FBuffer& src) { return impl_->Process(src); }

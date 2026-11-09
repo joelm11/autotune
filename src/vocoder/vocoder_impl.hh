@@ -10,6 +10,8 @@ class VocoderImpl {
   VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
               const float scale_factor);
 
+  void SetScaleFactor(const float scale_factor);
+
   FBuffer Process(const FBuffer& src);
 
  private:
@@ -20,9 +22,10 @@ class VocoderImpl {
 
   const SizeType kAnalysisHops = 4;
   const SizeType kFrameSz_, kSampleRate_;
-  const SizeType kAnalysisHopSize, kSynthesisHopSize_;
+  const SizeType kAnalysisHopSize;
+  SizeType kSynthesisHopSize_;
   const FBuffer kAnalysisWindow_;
-  const FBuffer kSynthesisWindow_;
+  FBuffer kSynthesisWindow_;
 
   RingBuffer<float> input_acc_;
   FBuffer prev_frame_phase_, prev_frame_synth_phase_;

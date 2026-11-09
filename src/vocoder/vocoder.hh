@@ -11,6 +11,8 @@ class Vocoder {
           const float scale_factor);
   ~Vocoder();
 
+  void SetScaleFactor(const float scale_factor);
+
   FBuffer Process(const FBuffer& src);
 
  private:

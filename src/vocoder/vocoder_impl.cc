@@ -1,8 +1,8 @@
 #include "vocoder_impl.hh"
 
 #include "../utils/ola_buffer.h"
-#include "utils.hh"
 #include "../utils/window.hh"
+#include "utils.hh"
 
 VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
                          const float scale_factor)
@@ -17,6 +17,17 @@ VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
       prev_frame_synth_phase_(kFrameSz_, 0.0f),
       output_acc_(frame_sz, kSynthesisHopSize_) {
   fft_ = std::make_unique<FFTImpl>(frame_sz);
+}
+
+void VocoderImpl::SetScaleFactor(const float scale_factor) {
+  kSynthesisHopSize_ = kAnalysisHopSize * scale_factor;
+  kSynthesisWindow_ = ComputeHannWin<float>(kFrameSz_, kSynthesisHopSize_);
+  output_acc_.SetHopSize(kSynthesisHopSize_);
+
+  // On scale factor change reset phase accounting
+  std::fill(prev_frame_phase_.begin(), prev_frame_phase_.end(), 0.0f);
+  std::fill(prev_frame_synth_phase_.begin(), prev_frame_synth_phase_.end(),
+            0.0f);
 }
 
 FBuffer VocoderImpl::Process(const FBuffer& src) {
