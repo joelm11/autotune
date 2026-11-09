@@ -1,7 +1,5 @@
 #ifndef PLUGIN_COMPONENTS_ANL_PNL_H
 #define PLUGIN_COMPONENTS_ANL_PNL_H
-#pragma once
-
 #include <JuceHeader.h>
 
 #include "../state.hh"
@@ -17,11 +15,11 @@ class AnalysisPanel : public juce::Component {
 
   void paint(juce::Graphics& g) override {
     juce::FlexBox flex;
-    flex.flexDirection = FlexBox::Direction::column;
-    flex.alignItems = FlexBox::AlignItems::stretch;
+    flex.flexDirection = juce::FlexBox::Direction::column;
+    flex.alignItems = juce::FlexBox::AlignItems::stretch;
 
-    flex.items.add(FlexItem(spectrum).withFlex(3.f));
-    flex.items.add(FlexItem(keys).withFlex(1.f));
+    flex.items.add(juce::FlexItem(spectrum).withFlex(3.f));
+    flex.items.add(juce::FlexItem(keys).withFlex(1.f));
     flex.performLayout(getLocalBounds());
   }
 

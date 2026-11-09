@@ -1,8 +1,8 @@
 # Plugin unit test.
 #
-# Unlike the DSP tests (which dump output via the AudioFile helper), this one
-# exercises the full JUCE AudioProcessor end to end, so it pulls in the JUCE
-# modules and uses JUCE's WavAudioFormat to write the offline output file.
+# This exercises the full JUCE AudioProcessor end to end, so it pulls in the
+# JUCE modules. Output WAV files are written via the AudioFile helper (the same
+# one the DSP tests use) rather than JUCE's WavAudioFormat.
 if(STANDALONE_BUILD AND DEBUG)
     juce_add_console_app(test_plugin VERSION "0.1.0")
 
@@ -27,11 +27,19 @@ if(STANDALONE_BUILD AND DEBUG)
         pitch-detect
         pitch-shift
         readerwriterqueue
+        AudioFile
         GTest::gtest_main)
 
     # processor_base.hh references the plugin-name macros that juce_add_plugin
     # normally injects; provide them for the plain console-app test target.
     target_compile_definitions(test_plugin PRIVATE JucePlugin_Name="June")
+
+    # Disable JUCE's injected `using namespace juce;` so AudioFile.h's global
+    # WavAudioFormat enum and JUCE's juce::WavAudioFormat don't collide when
+    # AudioFile's templates are instantiated in the same TU. The test sources
+    # qualify every JUCE name explicitly, so this is safe.
+    target_compile_definitions(test_plugin PRIVATE
+        DONT_SET_USING_JUCE_NAMESPACE)
 
     # Generate a JuceHeader.h for this target from the linked JUCE modules.
     juce_generate_juce_header(test_plugin)

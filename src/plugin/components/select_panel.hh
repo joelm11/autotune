@@ -25,9 +25,9 @@ class SelectPanel : public juce::Component {
 
   void resized() override {
     juce::FlexBox flex;
-    flex.flexDirection = FlexBox::Direction::column;
-    flex.alignItems = FlexBox::AlignItems::stretch;
-    flex.items.add(FlexItem(label).withHeight(30));
+    flex.flexDirection = juce::FlexBox::Direction::column;
+    flex.alignItems = juce::FlexBox::AlignItems::stretch;
+    flex.items.add(juce::FlexItem(label).withHeight(30));
     flex.performLayout(getLocalBounds());
   }
 
