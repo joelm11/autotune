@@ -43,6 +43,7 @@ add_subdirectory(src/vocoder)
 add_subdirectory(src/resampler)
 add_subdirectory(src/pitch-shift)
 add_subdirectory(src/pitch-detect)
+add_subdirectory(src/pitch-correct)
 
 # Plugin builds
 add_subdirectory(src/plugin)
