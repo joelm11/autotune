@@ -4,3 +4,5 @@
 
 # Build Files
 build/
+
+*.sh

@@ -5,6 +5,7 @@
 #include <JuceHeader.h>
 
 #include "../state.hh"
+#include "dropdown.hh"
 
 class SelectPanel : public juce::Component {
  public:
@@ -16,6 +17,13 @@ class SelectPanel : public juce::Component {
     label.setFont(juce::FontOptions(16.0f, juce::Font::bold));
     label.setJustificationType(juce::Justification::centred);
 
+    dropdown.setOptions({"C", "G", "D", "A", "E"});
+    dropdown.setOnChange([this](int) {
+      label.setText("Defaults to " + dropdown.getSelectedText() + "4",
+                    juce::NotificationType::dontSendNotification);
+    });
+
+    addAndMakeVisible(dropdown);
     addAndMakeVisible(label);
   }
 
@@ -27,12 +35,14 @@ class SelectPanel : public juce::Component {
     juce::FlexBox flex;
     flex.flexDirection = juce::FlexBox::Direction::column;
     flex.alignItems = juce::FlexBox::AlignItems::stretch;
+    flex.items.add(juce::FlexItem(dropdown).withHeight(30));
     flex.items.add(juce::FlexItem(label).withHeight(30));
     flex.performLayout(getLocalBounds());
   }
 
  private:
   juce::Label label;
+  Dropdown dropdown;
 };
 
 #endif  // PLUGIN_COMPONENTS_SEL_PNL_H
