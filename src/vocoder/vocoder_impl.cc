@@ -137,7 +137,7 @@ void VocoderImpl::ModifyPhaseT(CFBuffer& an_frame, FBuffer& prev_frame_phase,
     prev_frame_synth_phase[i] = inter_result[i];
   }
 
-  // ---- Phase locking (Laroche & Dolson, 1999) ----
+  // ---- Phase locking ----
   // Find the spectral peaks on the positive-frequency half; the negative
   // half is a mirror image and is reconstructed symmetrically at the end.
   const std::vector<SizeType> peaks = FindPeaks(an_frame);
@@ -175,15 +175,12 @@ void VocoderImpl::ModifyPhaseT(CFBuffer& an_frame, FBuffer& prev_frame_phase,
   prev_frame_peaks.swap(frame_peaks);
 
   // Mirror the (locked) positive-frequency phases onto the negative half so
-  // the output spectrum is conjugate-symmetric and its inverse FFT is a real
-  // waveform.
+  // the output spectrum.
   for (SizeType k = 1; k < kNyquist; ++k) {
     an_frame[kFrameSz_ - k].imag(-an_frame[k].imag());
   }
 
-  // Re-seed the per-bin accumulation with the phases that were actually
-  // emitted (identity for new peaks, locked values for their zones), so the
-  // propagation always continues from an observed phase.
+  // Re-seed the per-bin accumulation with actual phases.
   for (SizeType i = 0; i < kFrameSz_; ++i) {
     prev_frame_synth_phase[i] = an_frame[i].imag();
   }
