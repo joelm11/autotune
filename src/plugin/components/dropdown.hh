@@ -6,15 +6,28 @@
 #include <functional>
 #include <vector>
 
+#include "../fonts.hh"
+#include "../palette.hh"
 #include "../state.hh"
+
+namespace dropdown_style {
+inline constexpr float kFontHeight = 20.0f;
+inline constexpr int kFontStyle = (int)juce::Font::bold;
+
+// The label/chevron shares of the usable width.
+inline constexpr float kTextFlex = 6.0f;
+inline constexpr float kChevronFlex = 1.0f;
+
+inline constexpr float kSidePadding = 8.0f;
+inline constexpr float kChevronSize = 8.0f;
+inline constexpr float kChevronStroke = 2.0f;
+}  // namespace dropdown_style
 
 class Dropdown : public juce::Component {
  public:
   Dropdown() = default;
   explicit Dropdown(State& state) : state_(&state) {}
 
-  //! Associates this dropdown with the plugin state; selecting an option
-  //! writes the chosen key into state.key.
   void setState(State& state) { state_ = &state; }
 
   void setOptions(const std::vector<juce::String>& options) {
@@ -41,27 +54,42 @@ class Dropdown : public juce::Component {
   }
 
   void paint(juce::Graphics& g) override {
-    g.fillAll(juce::Colours::white);
-
     const juce::Rectangle<int> bounds = getLocalBounds();
 
-    g.setColour(juce::Colours::black);
+    g.setColour(palette::kSurface0);
+    g.fillRect(bounds);
+    g.setColour(palette::kSurface2);
     g.drawRect(bounds, 1.0f);
 
-    g.setFont(juce::FontOptions(16.0f, juce::Font::bold));
-    const juce::Rectangle<int> textArea = bounds.reduced(6, 0);
-    g.drawText(getSelectedText(), textArea, juce::Justification::centredLeft);
+    // Split the usable width between the label and the chevron.
+    const float usable =
+        (float)bounds.getWidth() - 2.0f * dropdown_style::kSidePadding;
+    const float textWidth =
+        usable * dropdown_style::kTextFlex /
+        (dropdown_style::kTextFlex + dropdown_style::kChevronFlex);
 
-    // Chevron pointing down, signalling that this opens a menu.
-    const float size = 8.0f;
-    const float centreX = (float)bounds.getRight() - 14.0f;
-    const float centreY = (float)bounds.getCentreY();
+    const juce::Rectangle<float> textArea(
+        (float)bounds.getX() + dropdown_style::kSidePadding,
+        (float)bounds.getY(), textWidth, (float)bounds.getHeight());
+    const juce::Rectangle<float> chevronArea(
+        textArea.getRight(), (float)bounds.getY(), usable - textWidth,
+        (float)bounds.getHeight());
+
+    g.setColour(palette::kText);
+    g.setFont(
+        fonts::mono(dropdown_style::kFontHeight, dropdown_style::kFontStyle));
+    g.drawText(getSelectedText(), textArea.toNearestInt(),
+               juce::Justification::centredLeft);
+
+    const float size = dropdown_style::kChevronSize;
+    const float centreX = chevronArea.getCentreX();
+    const float centreY = chevronArea.getCentreY();
     juce::Path arrow;
     arrow.startNewSubPath(centreX - size * 0.5f, centreY - size * 0.25f);
     arrow.lineTo(centreX, centreY + size * 0.25f);
     arrow.lineTo(centreX + size * 0.5f, centreY - size * 0.25f);
-    g.setColour(juce::Colours::black);
-    g.strokePath(arrow, juce::PathStrokeType(2.0f));
+    g.setColour(palette::kSubtext1);
+    g.strokePath(arrow, juce::PathStrokeType(dropdown_style::kChevronStroke));
   }
 
   void resized() override {}
@@ -77,11 +105,8 @@ class Dropdown : public juce::Component {
                        [this](int result) {
                          if (result > 0 && result - 1 != selected_) {
                            selected_ = result - 1;
-                           if (state_) {
-                             // The option list is kept in pitch::Key order, so
-                             // the selected index maps directly onto the key.
+                           if (state_)
                              state_->key = static_cast<pitch::Key>(selected_);
-                           }
                            if (on_change_) on_change_(selected_);
                            repaint();
                          }

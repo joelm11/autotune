@@ -11,7 +11,13 @@
 class SelectPanel : public juce::Component {
  public:
   SelectPanel(State& state) {
-    dropdown.setOptions({"C", "G", "D", "A", "E", "iiiiiiii"});
+    dropdown.setOptions({
+        "C",
+        "G",
+        "D",
+        "A",
+        "E",
+    });
     dropdown.setState(state);
 
     addAndMakeVisible(dropdown);

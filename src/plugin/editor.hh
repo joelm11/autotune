@@ -4,12 +4,13 @@
 
 #include "components/analysis_panel.hh"
 #include "components/select_panel.hh"
+#include "look_and_feel.hh"
 #include "processor.hh"
 
 class Editor : public juce::AudioProcessorEditor {
  public:
   explicit Editor(Processor& p);
-  ~Editor() override = default;
+  ~Editor() override;
 
   void paint(juce::Graphics&) override;
   void resized() override;
