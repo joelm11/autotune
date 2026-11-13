@@ -4,7 +4,7 @@
 
 #include <JuceHeader.h>
 
-#include "../palette.hh"
+#include "palette.hh"
 #include "../state.hh"
 #include "dropdown.hh"
 

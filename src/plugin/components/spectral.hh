@@ -6,8 +6,8 @@
 #include <algorithm>
 #include <cmath>
 
-#include "../fonts.hh"
-#include "../palette.hh"
+#include "fonts.hh"
+#include "palette.hh"
 #include "../state.hh"
 
 class Spectral : public juce::Component, public juce::Timer {

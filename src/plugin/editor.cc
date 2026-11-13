@@ -1,12 +1,10 @@
 #include "editor.hh"
 
 #include "components/analysis_panel.hh"
+#include "components/look_and_feel.hh"
 
 Editor::Editor(Processor& p)
     : juce::AudioProcessorEditor(p), panel_a(p.state), panel_b(p.state) {
-  // Install the mono LookAndFeel as the default so fonts created directly
-  // (e.g. Graphics::setFont) resolve to the monospaced typeface too; binding
-  // it to the editor also covers all child widgets.
   juce::LookAndFeel::setDefaultLookAndFeel(&monoLookAndFeel());
   setLookAndFeel(&monoLookAndFeel());
 

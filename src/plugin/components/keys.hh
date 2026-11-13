@@ -5,7 +5,7 @@
 #include <set>
 #include <vector>
 
-#include "../palette.hh"
+#include "palette.hh"
 
 class Keys : public juce::Component {
  public:

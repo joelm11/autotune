@@ -6,8 +6,8 @@
 #include <functional>
 #include <vector>
 
-#include "../fonts.hh"
-#include "../palette.hh"
+#include "fonts.hh"
+#include "palette.hh"
 #include "../state.hh"
 
 namespace dropdown_style {

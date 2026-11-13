@@ -4,7 +4,6 @@
 
 #include "components/analysis_panel.hh"
 #include "components/select_panel.hh"
-#include "look_and_feel.hh"
 #include "processor.hh"
 
 class Editor : public juce::AudioProcessorEditor {
