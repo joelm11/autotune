@@ -4,6 +4,7 @@
 
 #include "../api.hh"
 #include "pitch.hh"
+#include "smoothing.hh"
 
 class PitchShifter;
 
@@ -14,19 +15,16 @@ class PitchCorrect {
   PitchCorrect(const Key key, const float adjustment_rate);
   ~PitchCorrect();
 
-  //! Updates the scale key from UI state. A no-op when the key is unchanged.
   void SetKey(const Key new_key);
 
   FBuffer Process(const FBuffer& src, const float fund_freq);
 
  private:
-  // Ratio required to take the detected fundamental onto the nearest note of
-  // the selected scale.
   float ScaleFactor(const float fund_freq) const;
 
-  Key key;
   float adjustment_rate_ = 1.f;
-  float last_scale_factor_ = 1.f;
+  Key key;
+  std::unique_ptr<smoothing::Smoother> smoother_;
   std::unique_ptr<PitchShifter> shifter_;
 };
 #endif  // PITCH_CORRECT_H

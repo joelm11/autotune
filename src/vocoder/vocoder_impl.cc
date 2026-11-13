@@ -1,5 +1,7 @@
 #include "vocoder_impl.hh"
 
+#include <algorithm>
+
 #include "../utils/ola_buffer.h"
 #include "../utils/window.hh"
 #include "utils.hh"
@@ -15,6 +17,7 @@ VocoderImpl::VocoderImpl(const SizeType frame_sz, const SizeType sample_rate,
       input_acc_(frame_sz),
       prev_frame_phase_(kFrameSz_, 0.0f),
       prev_frame_synth_phase_(kFrameSz_, 0.0f),
+      prev_frame_peaks_(kFrameSz_, false),
       output_acc_(frame_sz, kSynthesisHopSize_) {
   fft_ = std::make_unique<FFTImpl>(frame_sz);
 }
@@ -23,11 +26,6 @@ void VocoderImpl::SetScaleFactor(const float scale_factor) {
   kSynthesisHopSize_ = kAnalysisHopSize * scale_factor;
   kSynthesisWindow_ = ComputeHannWin<float>(kFrameSz_, kSynthesisHopSize_);
   output_acc_.SetHopSize(kSynthesisHopSize_);
-
-  // On scale factor change reset phase accounting
-  std::fill(prev_frame_phase_.begin(), prev_frame_phase_.end(), 0.0f);
-  std::fill(prev_frame_synth_phase_.begin(), prev_frame_synth_phase_.end(),
-            0.0f);
 }
 
 FBuffer VocoderImpl::Process(const FBuffer& src) {
@@ -46,12 +44,14 @@ FBuffer VocoderImpl::Process(const FBuffer& src) {
   FBuffer output_frame;
   FBuffer prev_frame_phase = prev_frame_phase_;
   FBuffer prev_frame_synth_phase = prev_frame_synth_phase_;
+  std::vector<bool> prev_frame_peaks = prev_frame_peaks_;
   for (auto& src_frame : src_frames) {
     CFBuffer analysis_frame(kFrameSz_);
     FBuffer procd_samples(kSynthesisHopSize_);
 
     Analysis(src_frame, analysis_frame);
-    ModifyPhaseT(analysis_frame, prev_frame_phase, prev_frame_synth_phase);
+    ModifyPhaseT(analysis_frame, prev_frame_phase, prev_frame_synth_phase,
+                 prev_frame_peaks);
     procd_samples = Synthesis(analysis_frame, output_acc_);
 
     output_frame.insert(output_frame.end(), procd_samples.begin(),
@@ -60,6 +60,7 @@ FBuffer VocoderImpl::Process(const FBuffer& src) {
 
   prev_frame_phase_ = prev_frame_phase;
   prev_frame_synth_phase_ = prev_frame_synth_phase;
+  prev_frame_peaks_ = prev_frame_peaks;
 
   return output_frame;
 }
@@ -76,8 +77,37 @@ void VocoderImpl::Analysis(FBuffer& src, CFBuffer& out) {
   }
 }
 
+std::vector<SizeType> VocoderImpl::FindPeaks(const CFBuffer& an_frame) const {
+  const SizeType kNyquist = kFrameSz_ / 2;
+
+  float max_mag = 0.0f;
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
+    max_mag = std::max(max_mag, an_frame[i].real());
+  }
+  const float peak_threshold = kPeakThresholdRatio * max_mag;
+
+  std::vector<SizeType> peaks;
+  peaks.reserve(kNyquist / 2);
+  for (SizeType k = 1; k < kNyquist; ++k) {
+    const float mag_k = an_frame[k].real();
+    if (mag_k > an_frame[k - 1].real() && mag_k >= an_frame[k + 1].real() &&
+        mag_k > peak_threshold) {
+      peaks.push_back(k);
+    }
+  }
+  return peaks;
+}
+
 void VocoderImpl::ModifyPhaseT(CFBuffer& an_frame, FBuffer& prev_frame_phase,
-                               FBuffer& prev_frame_synth_phase) {
+                               FBuffer& prev_frame_synth_phase,
+                               std::vector<bool>& prev_frame_peaks) {
+  const SizeType kNyquist = kFrameSz_ / 2;
+
+  FBuffer analysis_phase(kFrameSz_);
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
+    analysis_phase[i] = an_frame[i].imag();
+  }
+
   FBuffer bin_freqs(kFrameSz_), phase_advance(kFrameSz_),
       inter_result(kFrameSz_);
   // Constants.
@@ -97,12 +127,62 @@ void VocoderImpl::ModifyPhaseT(CFBuffer& an_frame, FBuffer& prev_frame_phase,
   for (SizeType i = 0; i < kFrameSz_; ++i) {
     inter_result[i] = bin_freqs[i] + inter_result[i] / kAnalysisHopSize;
   }
-  // Phase propagation and synthesis.
+  // Phase propagation and synthesis with wrapping.
   for (SizeType i = 0; i < kFrameSz_; ++i) {
     inter_result[i] =
         prev_frame_synth_phase[i] + kSynthesisHopSize_ * inter_result[i];
+    inter_result[i] =
+        inter_result[i] - 2 * M_PI * round(inter_result[i] / (2 * M_PI));
     an_frame[i].imag(inter_result[i]);
     prev_frame_synth_phase[i] = inter_result[i];
+  }
+
+  // ---- Phase locking ----
+  // Find the spectral peaks on the positive-frequency half; the negative
+  // half is a mirror image and is reconstructed symmetrically at the end.
+  const std::vector<SizeType> peaks = FindPeaks(an_frame);
+  std::vector<bool> frame_peaks(kFrameSz_, false);
+  for (SizeType p : peaks) {
+    frame_peaks[p] = true;
+  }
+
+  if (!peaks.empty()) {
+    for (SizeType k = 1; k < kNyquist; ++k) {
+      // Assign the bin to its nearest analysis peak (ties resolve toward the
+      // lower-frequency peak).
+      SizeType nearest = peaks.front();
+      SizeType nearest_dist = kFrameSz_;
+      for (SizeType p : peaks) {
+        const SizeType dist = p > k ? p - k : k - p;
+        if (dist < nearest_dist) {
+          nearest_dist = dist;
+          nearest = p;
+        }
+      }
+
+      const bool new_peak = !prev_frame_peaks[nearest];
+      const float peak_phase =
+          new_peak ? analysis_phase[nearest] : an_frame[nearest].imag();
+
+      // Lock this bin's phase to the peak while keeping the within-peak
+      // offsets of the analysis frame, so the partial's wave shape survives
+      // the time scaling.
+      float locked = peak_phase + analysis_phase[k] - analysis_phase[nearest];
+      locked -= 2 * M_PI * round(locked / (2 * M_PI));
+      an_frame[k].imag(locked);
+    }
+  }
+  prev_frame_peaks.swap(frame_peaks);
+
+  // Mirror the (locked) positive-frequency phases onto the negative half so
+  // the output spectrum.
+  for (SizeType k = 1; k < kNyquist; ++k) {
+    an_frame[kFrameSz_ - k].imag(-an_frame[k].imag());
+  }
+
+  // Re-seed the per-bin accumulation with actual phases.
+  for (SizeType i = 0; i < kFrameSz_; ++i) {
+    prev_frame_synth_phase[i] = an_frame[i].imag();
   }
 }
 
