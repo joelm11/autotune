@@ -1,4 +1,4 @@
-add_library(pitch-correct STATIC pitch_correct.hh pitch_correct.cc pitch.hh)
+add_library(pitch-correct STATIC pitch_correct.hh pitch_correct.cc pitch.hh smoothing.hh)
 target_include_directories(pitch-correct PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(pitch-correct PUBLIC pitch-shift)
