@@ -24,10 +24,14 @@ void VocoderImpl::SetScaleFactor(const float scale_factor) {
   kSynthesisWindow_ = ComputeHannWin<float>(kFrameSz_, kSynthesisHopSize_);
   output_acc_.SetHopSize(kSynthesisHopSize_);
 
-  // On scale factor change reset phase accounting
-  std::fill(prev_frame_phase_.begin(), prev_frame_phase_.end(), 0.0f);
-  std::fill(prev_frame_synth_phase_.begin(), prev_frame_synth_phase_.end(),
-            0.0f);
+  // Preserve the running phase accounting. prev_frame_phase_ tracks the raw
+  // input phase (used to measure instantaneous frequency from the phase-
+  // difference across frames) and prev_frame_synth_phase_ the accumulated
+  // synthesis phase; both are independent of the scale factor, so keeping
+  // them across a hop-size change lets the output phase carry on from where
+  // it was instead of being reset (which would cause a discontinuity/click).
+  // The synthesis phase then advances by the new hop, so the change is
+  // continuous rather than starting from a re-warmed accumulator.
 }
 
 FBuffer VocoderImpl::Process(const FBuffer& src) {
