@@ -4,45 +4,30 @@
 
 #include <JuceHeader.h>
 
+#include "../palette.hh"
 #include "../state.hh"
 #include "dropdown.hh"
 
 class SelectPanel : public juce::Component {
  public:
   SelectPanel(State& state) {
-    label.setText("Defaults to C4",
-                  juce::NotificationType::dontSendNotification);
-    label.setColour(juce::Label::textColourId, juce::Colours::aliceblue);
-    label.setColour(juce::Label::backgroundColourId, juce::Colours::black);
-    label.setFont(juce::FontOptions(16.0f, juce::Font::bold));
-    label.setJustificationType(juce::Justification::centred);
-
-    dropdown.setOptions({"C", "G", "D", "A", "E"});
+    dropdown.setOptions({"C", "G", "D", "A", "E", "iiiiiiii"});
     dropdown.setState(state);
-    dropdown.setOnChange([this](int) {
-      label.setText("Defaults to " + dropdown.getSelectedText() + "4",
-                    juce::NotificationType::dontSendNotification);
-    });
 
     addAndMakeVisible(dropdown);
-    addAndMakeVisible(label);
   }
 
-  void paint(juce::Graphics& g) override {
-    g.fillAll(juce::Colours::lavenderblush);
-  }
+  void paint(juce::Graphics& g) override { g.fillAll(palette::kMantle); }
 
   void resized() override {
     juce::FlexBox flex;
     flex.flexDirection = juce::FlexBox::Direction::column;
     flex.alignItems = juce::FlexBox::AlignItems::stretch;
     flex.items.add(juce::FlexItem(dropdown).withHeight(30));
-    flex.items.add(juce::FlexItem(label).withHeight(30));
     flex.performLayout(getLocalBounds());
   }
 
  private:
-  juce::Label label;
   Dropdown dropdown;
 };
 

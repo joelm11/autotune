@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "../fonts.hh"
+#include "../palette.hh"
 #include "../state.hh"
 
 class Spectral : public juce::Component, public juce::Timer {
@@ -13,13 +15,14 @@ class Spectral : public juce::Component, public juce::Timer {
   explicit Spectral(State& state) : state_(state) { startTimerHz(15); }
 
   void paint(juce::Graphics& g) override {
-    g.fillAll(juce::Colours::darkgrey);
-    if (data_.size() < 2) return;
+    g.fillAll(palette::kBase);
+    if (data_.size() < 4) return;
 
     const int w = getWidth(), h = getHeight();
-    // Average adjacent FFT bin pairs so only half the bins are shown. This
-    // keeps the frequency axis linear while reducing visual granularity.
-    const size_t bins = data_.size() / 2;
+    // Only show the lower half of the spectrum (0 to Nyquist/2), then
+    // average adjacent bin pairs so the bars are twice as wide.
+    const size_t half = data_.size() / 2;
+    const size_t bins = half / 2;
     const float step = (float)w / (float)bins;
     const float gap = 2.0f;  // horizontal spacing between bars
     const float bar_w = std::max(1.0f, step - gap);
@@ -32,7 +35,7 @@ class Spectral : public juce::Component, public juce::Timer {
     const float range = kMaxDb - kMinDb;
 
     // Paint spectral levels as bars.
-    g.setColour(juce::Colours::limegreen);
+    g.setColour(palette::kGreen);
     for (size_t i = 0; i < bins; ++i) {
       const float mag = (data_[2 * i] + data_[2 * i + 1]) * 0.5f;
       if (mag <= 0.0f) continue;
@@ -48,8 +51,8 @@ class Spectral : public juce::Component, public juce::Timer {
 
     // Paint the calculated fundamental frequency in the top right.
     const unsigned f0 = state_.f0.load();
-    g.setColour(juce::Colours::white);
-    g.setFont(14.0f);
+    g.setColour(palette::kText);
+    g.setFont(fonts::mono(14.0f));
     const juce::String label =
         (f0 > 0) ? (juce::String(f0) + " Hz") : juce::String("--");
     g.drawText(label, w - 80, 4, 76, 16, juce::Justification::right, false);

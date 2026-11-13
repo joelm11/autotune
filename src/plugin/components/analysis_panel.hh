@@ -13,7 +13,9 @@ class AnalysisPanel : public juce::Component {
     addAndMakeVisible(keys);
   }
 
-  void paint(juce::Graphics& g) override {
+  void paint(juce::Graphics&) override {}
+
+  void resized() override {
     juce::FlexBox flex;
     flex.flexDirection = juce::FlexBox::Direction::column;
     flex.alignItems = juce::FlexBox::AlignItems::stretch;
@@ -22,8 +24,6 @@ class AnalysisPanel : public juce::Component {
     // flex.items.add(juce::FlexItem(keys).withFlex(1.f));
     flex.performLayout(getLocalBounds());
   }
-
-  void resized() override {}
 
  private:
   Spectral spectrum;

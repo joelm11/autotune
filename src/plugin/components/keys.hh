@@ -1,10 +1,11 @@
 #ifndef PLUGIN_COMPONENTS_KEYS_H
 #define PLUGIN_COMPONENTS_KEYS_H
-#pragma once
 #include <JuceHeader.h>
 
 #include <set>
 #include <vector>
+
+#include "../palette.hh"
 
 class Keys : public juce::Component {
  public:
@@ -25,7 +26,7 @@ class Keys : public juce::Component {
   }
 
   void paint(juce::Graphics& g) override {
-    g.fillAll(juce::Colours::darkgrey);
+    g.fillAll(palette::kMantle);
 
     const float w = (float)getWidth();
     const float h = (float)getHeight();
@@ -40,10 +41,10 @@ class Keys : public juce::Component {
     // White keys.
     for (int i = 0; i < 7; ++i) {
       const juce::Rectangle<float> key((float)i * whiteW, 0.0f, whiteW, h);
-      g.setColour(isHighlighted(kWhitePitch[i]) ? juce::Colours::orange
-                                                : juce::Colours::white);
+      g.setColour(isHighlighted(kWhitePitch[i]) ? palette::kMauve
+                                                : palette::kText);
       g.fillRect(key);
-      g.setColour(juce::Colours::black);
+      g.setColour(palette::kSurface2);
       g.drawRect(key, 1.0f);
     }
 
@@ -54,12 +55,12 @@ class Keys : public juce::Component {
       const float centre = ((float)kBlackAfter[i] + 0.5f) * whiteW;
       const juce::Rectangle<float> key(centre - blackW * 0.5f, 0.0f, blackW,
                                        blackH);
-      g.setColour(isHighlighted(kBlackPitch[i]) ? juce::Colours::orange
-                                                : juce::Colours::black);
+      g.setColour(isHighlighted(kBlackPitch[i]) ? palette::kMauve
+                                                : palette::kCrust);
       g.fillRect(key);
     }
 
-    g.setColour(juce::Colours::black);
+    g.setColour(palette::kSurface2);
     g.drawRect(getLocalBounds(), 1.0f);
   }
 
