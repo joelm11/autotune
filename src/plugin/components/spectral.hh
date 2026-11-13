@@ -6,9 +6,9 @@
 #include <algorithm>
 #include <cmath>
 
+#include "../state.hh"
 #include "fonts.hh"
 #include "palette.hh"
-#include "../state.hh"
 
 class Spectral : public juce::Component, public juce::Timer {
  public:
@@ -54,8 +54,8 @@ class Spectral : public juce::Component, public juce::Timer {
     g.setColour(palette::kText);
     g.setFont(fonts::mono(14.0f));
     const juce::String label =
-        (f0 > 0) ? (juce::String(f0) + " Hz") : juce::String("--");
-    g.drawText(label, w - 80, 4, 76, 16, juce::Justification::right, false);
+        (f0 > 0) ? ("F0: " + juce::String(f0) + " Hz") : juce::String("--");
+    g.drawText(label, w - 80, 4, 76, 20, juce::Justification::right, false);
   }
 
   void resized() override {}
